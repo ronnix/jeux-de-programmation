@@ -14,7 +14,7 @@ def find_first_repeating_freq(frequency_changes):
 
 
 def read_input():
-    yield from (int(line) for line in sys.stdin)
+    return (int(line) for line in sys.stdin)
 
 
 if __name__ == '__main__':
