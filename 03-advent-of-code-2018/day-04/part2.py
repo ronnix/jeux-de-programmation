@@ -64,7 +64,7 @@ def sleep_freq_by_minute_by_guard(sleep_periods):
 
 def most_frequently_asleep_on_the_same_minute(sleep_periods):
     sleep_freq = sleep_freq_by_minute_by_guard(sleep_periods)
-    return sorted(sleep_freq.items(), key=itemgetter(1))[-1]
+    return max(sleep_freq.items(), key=itemgetter(1))
 
 
 if __name__ == "__main__":
