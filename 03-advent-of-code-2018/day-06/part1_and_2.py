@@ -152,10 +152,28 @@ def total_distance(locations, point):
     return sum(manhattan_distance(location, point) for location in locations)
 
 
+def test_size_of_safe_region():
+    assert size_of_safe_region(TEST_LOCATIONS, 32) == 16
+
+
+def size_of_safe_region(locations, threshold):
+    x_max, y_max = grid_size(locations)
+    return len({
+        (x, y)
+        for x in range(0, x_max + 1)
+        for y in range(0, y_max + 1)
+        if total_distance(locations, (x, y)) < threshold
+    })
+
+
 def main():
     locations = tuple(read_input(sys.stdin))
+
     size = largest_finite_area(locations)
     print(f"The size of the largest area that isn't infinite is {size}")
+
+    safe_size = size_of_safe_region(locations, 10000)
+    print(f"The size of the region containing all locations which have a total distance to all given coordinates of less than 10000 is {safe_size}")
 
 
 if __name__ == "__main__":
