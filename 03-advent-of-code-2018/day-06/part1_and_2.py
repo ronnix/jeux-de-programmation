@@ -144,6 +144,14 @@ def largest_finite_area(locations):
     )
 
 
+def test_total_distance():
+    assert total_distance(TEST_LOCATIONS, (4, 3)) == 30
+
+
+def total_distance(locations, point):
+    return sum(manhattan_distance(location, point) for location in locations)
+
+
 def main():
     locations = tuple(read_input(sys.stdin))
     size = largest_finite_area(locations)
