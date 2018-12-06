@@ -26,6 +26,14 @@ def manhattan_distance(p1, p2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
+def test_grid_size():
+    assert grid_size([(183, 157), (331, 86)]) == (331, 157)
+
+
+def grid_size(points):
+    return max(p[0] for p in points), max(p[1] for p in points)
+
+
 def main():
     print(list(read_input(sys.stdin)))
 
