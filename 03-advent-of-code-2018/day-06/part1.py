@@ -144,8 +144,30 @@ def area(locations, location):
     )
 
 
+def test_largest_finite_area():
+    locations = [
+        (1, 1),  # A
+        (1, 6),  # B
+        (8, 3),  # C
+        (3, 4),  # D
+        (5, 5),  # E
+        (8, 9),  # F
+    ]
+    assert largest_finite_area(locations) == 17
+
+
+def largest_finite_area(locations):
+    return max(
+        area(locations, location)
+        for location in locations
+        if not has_infinite_area(locations, location)
+    )
+
+
 def main():
-    print(list(read_input(sys.stdin)))
+    locations = list(read_input(sys.stdin))
+    size = largest_finite_area(locations)
+    print(f"The size of the largest area that isn't infinite is {size}")
 
 
 if __name__ == "__main__":
