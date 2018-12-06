@@ -2,6 +2,16 @@
 import sys
 
 
+TEST_LOCATIONS = [
+    (1, 1),  # A
+    (1, 6),  # B
+    (8, 3),  # C
+    (3, 4),  # D
+    (5, 5),  # E
+    (8, 9),  # F
+]
+
+
 def test_read_input():
     res = read_input(["183, 157\n", "331, 86\n"])
     assert list(res) == [(183, 157), (331, 86)]
@@ -35,18 +45,10 @@ def grid_size(points):
 
 
 def test_closest_locations():
-    locations = [
-        (1, 1),  # A
-        (1, 6),  # B
-        (8, 3),  # C
-        (3, 4),  # D
-        (5, 5),  # E
-        (8, 9),  # F
-    ]
-    assert closest_locations(locations, (0, 0)) == {(1, 1)}
-    assert closest_locations(locations, (4, 0)) == {(1, 1)}
-    assert closest_locations(locations, (5, 0)) == {(1, 1), (5, 5)}
-    assert closest_locations(locations, (6, 0)) == {(8, 3)}
+    assert closest_locations(TEST_LOCATIONS, (0, 0)) == {(1, 1)}
+    assert closest_locations(TEST_LOCATIONS, (4, 0)) == {(1, 1)}
+    assert closest_locations(TEST_LOCATIONS, (5, 0)) == {(1, 1), (5, 5)}
+    assert closest_locations(TEST_LOCATIONS, (6, 0)) == {(8, 3)}
 
 
 def closest_locations(locations, coordinates):
@@ -60,20 +62,12 @@ def closest_locations(locations, coordinates):
 
 
 def test_has_infinite_area():
-    locations = [
-        (1, 1),  # A
-        (1, 6),  # B
-        (8, 3),  # C
-        (3, 4),  # D
-        (5, 5),  # E
-        (8, 9),  # F
-    ]
-    assert has_infinite_area(locations, (1, 1))  # A
-    assert has_infinite_area(locations, (1, 6))  # B
-    assert has_infinite_area(locations, (8, 3))  # C
-    assert not has_infinite_area(locations, (3, 4))  # D
-    assert not has_infinite_area(locations, (5, 5))  # E
-    assert has_infinite_area(locations, (8, 9))  # F
+    assert has_infinite_area(TEST_LOCATIONS, (1, 1))  # A
+    assert has_infinite_area(TEST_LOCATIONS, (1, 6))  # B
+    assert has_infinite_area(TEST_LOCATIONS, (8, 3))  # C
+    assert not has_infinite_area(TEST_LOCATIONS, (3, 4))  # D
+    assert not has_infinite_area(TEST_LOCATIONS, (5, 5))  # E
+    assert has_infinite_area(TEST_LOCATIONS, (8, 9))  # F
 
 
 def has_infinite_area(locations, location):
@@ -97,16 +91,8 @@ def has_infinite_area(locations, location):
 
 
 def test_area():
-    locations = [
-        (1, 1),  # A
-        (1, 6),  # B
-        (8, 3),  # C
-        (3, 4),  # D
-        (5, 5),  # E
-        (8, 9),  # F
-    ]
-    assert area(locations, (3, 4)) == 9
-    assert area(locations, (5, 5)) == 17
+    assert area(TEST_LOCATIONS, (3, 4)) == 9
+    assert area(TEST_LOCATIONS, (5, 5)) == 17
 
 
 def area(locations, location):
@@ -145,15 +131,7 @@ def area(locations, location):
 
 
 def test_largest_finite_area():
-    locations = [
-        (1, 1),  # A
-        (1, 6),  # B
-        (8, 3),  # C
-        (3, 4),  # D
-        (5, 5),  # E
-        (8, 9),  # F
-    ]
-    assert largest_finite_area(locations) == 17
+    assert largest_finite_area(TEST_LOCATIONS) == 17
 
 
 def largest_finite_area(locations):
