@@ -34,6 +34,31 @@ def grid_size(points):
     return max(p[0] for p in points), max(p[1] for p in points)
 
 
+def test_closest_locations():
+    locations = [
+        (1, 1),  # A
+        (1, 6),  # B
+        (8, 3),  # C
+        (3, 4),  # D
+        (5, 5),  # E
+        (8, 9),  # F
+    ]
+    assert closest_locations(locations, (0, 0)) == {(1, 1)}
+    assert closest_locations(locations, (4, 0)) == {(1, 1)}
+    assert closest_locations(locations, (5, 0)) == {(1, 1), (5, 5)}
+    assert closest_locations(locations, (6, 0)) == {(8, 3)}
+
+
+def closest_locations(locations, coordinates):
+    distances = {
+        location: manhattan_distance(coordinates, location) for location in locations
+    }
+    shortest = min(distances.values())
+    return {
+        location for location, distance in distances.items() if distance == shortest
+    }
+
+
 def main():
     print(list(read_input(sys.stdin)))
 
