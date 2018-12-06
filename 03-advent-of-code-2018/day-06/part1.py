@@ -96,6 +96,54 @@ def has_infinite_area(locations, location):
     )
 
 
+def test_area():
+    locations = [
+        (1, 1),  # A
+        (1, 6),  # B
+        (8, 3),  # C
+        (3, 4),  # D
+        (5, 5),  # E
+        (8, 9),  # F
+    ]
+    assert area(locations, (3, 4)) == 9
+    assert area(locations, (5, 5)) == 17
+
+
+def area(locations, location):
+    x_loc, y_loc = location
+    width, height = grid_size(locations)
+
+    x_min = x_loc
+    while x_min > 0:
+        if closest_locations(locations, (x_min, y_loc)) != {location}:
+            break
+        x_min -= 1
+
+    x_max = x_loc
+    while x_max < width:
+        if closest_locations(locations, (x_max, y_loc)) != {location}:
+            break
+        x_max += 1
+
+    y_min = y_loc
+    while y_min > 0:
+        if closest_locations(locations, (x_loc, y_min)) != {location}:
+            break
+        y_min -= 1
+
+    y_max = y_loc
+    while y_max < height:
+        if closest_locations(locations, (x_loc, y_max)) != {location}:
+            break
+        y_max += 1
+
+    return sum(
+        int(closest_locations(locations, (x, y)) == {location})
+        for x in range(x_min, x_max + 1)
+        for y in range(y_min, y_max + 1)
+    )
+
+
 def main():
     print(list(read_input(sys.stdin)))
 
