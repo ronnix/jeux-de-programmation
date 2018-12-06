@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 import sys
+from functools import lru_cache
 
 
-TEST_LOCATIONS = [
+TEST_LOCATIONS = (
     (1, 1),  # A
     (1, 6),  # B
     (8, 3),  # C
     (3, 4),  # D
     (5, 5),  # E
     (8, 9),  # F
-]
+)
 
 
 def test_read_input():
@@ -51,6 +52,7 @@ def test_closest_locations():
     assert closest_locations(TEST_LOCATIONS, (6, 0)) == {(8, 3)}
 
 
+@lru_cache(maxsize=None)
 def closest_locations(locations, coordinates):
     distances = {
         location: manhattan_distance(coordinates, location) for location in locations
@@ -143,7 +145,7 @@ def largest_finite_area(locations):
 
 
 def main():
-    locations = list(read_input(sys.stdin))
+    locations = tuple(read_input(sys.stdin))
     size = largest_finite_area(locations)
     print(f"The size of the largest area that isn't infinite is {size}")
 
