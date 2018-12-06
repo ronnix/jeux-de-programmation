@@ -78,25 +78,21 @@ def test_has_infinite_area():
 
 def has_infinite_area(locations, location):
     """
-    If we go in any one of the 4 directions, and for all the coordinates
-    we find until we reach the edge of the grid, the location is the closest
-    one, then it has in infinite area.
+    For any of the 4 directions, if the location is the closest to the point
+    at the edge of the grid in that direction, then it has in infinite area.
     """
     x_min, y_min = 0, 0
     x_max, y_max = grid_size(locations)
     x_loc, y_loc = location
 
-    up = ((x_loc, y) for y in range(y_min, max(y_min, y_loc)))
-    down = ((x_loc, y) for y in range(min(y_max, y_loc + 1), y_max + 1))
-    left = ((x, y_loc) for x in range(x_min, max(x_min, x_loc)))
-    right = ((x, y_loc) for x in range(min(x_max, x_loc + 1), x_max + 1))
+    up = (x_loc, y_min)
+    down = (x_loc, y_max)
+    left = (x_min, y_loc)
+    right = (x_max, y_loc)
 
     return any(
-        all(
-            closest_locations(locations, point) == {location}
-            for point in axis
-        )
-        for axis in (up, down, left, right)
+        closest_locations(locations, point) == {location}
+        for point in (up, down, left, right)
     )
 
 
