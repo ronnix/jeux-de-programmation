@@ -54,6 +54,15 @@ def walk_graph(dependency_graph):
     return completed
 
 
+def test_step_time():
+    assert step_time("A") == 61
+    assert step_time("Z") == 86
+
+
+def step_time(step):
+    return ord(step) - ord("A") + 61
+
+
 def main():
     dependency_graph = read_input(sys.stdin)
     print(walk_graph(dependency_graph))
