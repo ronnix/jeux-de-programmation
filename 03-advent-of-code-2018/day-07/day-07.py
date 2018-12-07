@@ -35,8 +35,28 @@ def read_input(stream):
     return dependency_graph
 
 
+def test_walk_graph():
+    dependency_graph = read_input(TEST_INPUT.splitlines())
+    assert walk_graph(dependency_graph) == "CABDFE"
+
+
+def walk_graph(dependency_graph):
+    completed = ""
+    remaining = dependency_graph.copy()
+    while remaining:
+        step = min(
+            step
+            for step, required in remaining.items()
+            if all(dep in completed for dep in required)
+        )
+        completed += step
+        del remaining[step]
+    return completed
+
+
 def main():
-    print(read_input(sys.stdin))
+    dependency_graph = read_input(sys.stdin)
+    print(walk_graph(dependency_graph))
 
 
 if __name__ == "__main__":
