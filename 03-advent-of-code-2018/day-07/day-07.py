@@ -58,9 +58,12 @@ def test_step_time():
     assert step_time("A") == 61
     assert step_time("Z") == 86
 
+    assert step_time("A", base_time=0) == 1
+    assert step_time("Z", base_time=0) == 26
 
-def step_time(step):
-    return ord(step) - ord("A") + 61
+
+def step_time(step, base_time=60):
+    return base_time + ord(step) - ord("A") + 1
 
 
 def main():
