@@ -18,6 +18,7 @@ def test_read_input():
     assert read_input(TEST_INPUT.splitlines()) == {
         "A": {"C"},
         "B": {"A"},
+        "C": set(),
         "D": {"A"},
         "E": {"B", "D", "F"},
         "F": {"C"},
@@ -30,6 +31,7 @@ def read_input(stream):
         step = line[36]
         required = line[5]
         dependency_graph[step].add(required)
+        dependency_graph[required]  # touch this key so that it exists
     return dependency_graph
 
 
