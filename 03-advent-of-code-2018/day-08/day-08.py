@@ -49,6 +49,9 @@ class Node:
         node.metadata = numbers[index : index + nb_metadata]
         return node, index + nb_metadata
 
+    def sum_metadata(self):
+        return sum(self.metadata) + sum(child.sum_metadata() for child in self.children)
+
     def value(self):
         if not self.children:
             return sum(self.metadata)
@@ -60,19 +63,18 @@ class Node:
 
 
 def test_sum_metadata():
-    tree = Node.from_numbers(parse_input(TEST_INPUT))
-    assert sum_metadata(tree) == 138
+    node = Node.from_numbers(parse_input(TEST_INPUT))
+    assert node.sum_metadata() == 138
 
 
-def sum_metadata(node):
-    return sum(node.metadata) + sum(sum_metadata(child) for child in node.children)
-
-
-@pytest.mark.parametrize("tree, value", [
-    (Node(metadata=[10, 11, 12]), 33),
-    (Node(children=[Node(metadata=[99])], metadata=[2]), 0),
-    (Node.from_numbers(parse_input(TEST_INPUT)), 66),
-])
+@pytest.mark.parametrize(
+    "tree, value",
+    [
+        (Node(metadata=[10, 11, 12]), 33),
+        (Node(children=[Node(metadata=[99])], metadata=[2]), 0),
+        (Node.from_numbers(parse_input(TEST_INPUT)), 66),
+    ],
+)
 def test_node_value(tree, value):
     assert tree.value() == value
 
@@ -80,7 +82,7 @@ def test_node_value(tree, value):
 def main():
     numbers = parse_input(sys.stdin.read())
     tree = Node.from_numbers(numbers)
-    print(sum_metadata(tree))
+    print(tree.sum_metadata())
     print(tree.value())
 
 
