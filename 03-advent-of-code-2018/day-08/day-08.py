@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
 
+import pytest
+
 
 TEST_INPUT = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"
 
@@ -87,17 +89,13 @@ def sum_metadata(node):
     return sum(node.metadata) + sum(sum_metadata(child) for child in node.children)
 
 
-def test_node_value_no_children():
-    assert Node(metadata=[10, 11, 12]).value() == 33
-
-
-def test_node_value_with_children():
-    assert Node(children=[Node(metadata=[99])], metadata=[2]).value() == 0
-
-
-def test_node_value_test_input():
-    tree = Node.from_numbers(parse_input(TEST_INPUT))
-    assert tree.value() == 66
+@pytest.mark.parametrize("tree, value", [
+    (Node(metadata=[10, 11, 12]), 33),
+    (Node(children=[Node(metadata=[99])], metadata=[2]), 0),
+    (Node.from_numbers(parse_input(TEST_INPUT)), 66),
+])
+def test_node_value(tree, value):
+    assert tree.value() == value
 
 
 def main():
