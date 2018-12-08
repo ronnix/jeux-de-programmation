@@ -63,8 +63,7 @@ class Node:
 
 
 def test_sum_metadata():
-    node = Node.from_string(TEST_INPUT)
-    assert node.sum_metadata() == 138
+    assert Node.from_string(TEST_INPUT).sum_metadata() == 138
 
 
 @pytest.mark.parametrize(
