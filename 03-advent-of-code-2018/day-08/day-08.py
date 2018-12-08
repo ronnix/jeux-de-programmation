@@ -102,6 +102,7 @@ def main():
     numbers = parse_input(sys.stdin.read())
     tree = Node.from_numbers(numbers)
     print(sum_metadata(tree))
+    print(tree.value())
 
 
 if __name__ == "__main__":
