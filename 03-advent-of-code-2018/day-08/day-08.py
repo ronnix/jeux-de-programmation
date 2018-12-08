@@ -7,12 +7,8 @@ import pytest
 TEST_INPUT = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"
 
 
-def parse_input(text):
-    return [int(s) for s in text.split()]
-
-
 def test_build_tree():
-    assert Node.from_numbers(parse_input(TEST_INPUT)) == Node(
+    assert Node.from_string(TEST_INPUT) == Node(
         children=[
             Node(metadata=[10, 11, 12]),
             Node(children=[Node(metadata=[99])], metadata=[2]),
@@ -31,6 +27,10 @@ class Node:
 
     def __eq__(self, other):
         return self.children == other.children and self.metadata == other.metadata
+
+    @classmethod
+    def from_string(cls, text):
+        return cls.from_numbers([int(s) for s in text.split()])
 
     @classmethod
     def from_numbers(cls, numbers):
@@ -63,7 +63,7 @@ class Node:
 
 
 def test_sum_metadata():
-    node = Node.from_numbers(parse_input(TEST_INPUT))
+    node = Node.from_string(TEST_INPUT)
     assert node.sum_metadata() == 138
 
 
@@ -72,7 +72,7 @@ def test_sum_metadata():
     [
         (Node(metadata=[10, 11, 12]), 33),
         (Node(children=[Node(metadata=[99])], metadata=[2]), 0),
-        (Node.from_numbers(parse_input(TEST_INPUT)), 66),
+        (Node.from_string(TEST_INPUT), 66),
     ],
 )
 def test_node_value(tree, value):
@@ -80,8 +80,7 @@ def test_node_value(tree, value):
 
 
 def main():
-    numbers = parse_input(sys.stdin.read())
-    tree = Node.from_numbers(numbers)
+    tree = Node.from_string(sys.stdin.read())
     print(tree.sum_metadata())
     print(tree.value())
 
