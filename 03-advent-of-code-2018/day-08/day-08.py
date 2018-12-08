@@ -30,18 +30,6 @@ def parse_input(text):
     return [int(s) for s in text.split()]
 
 
-def test_build_empty_tree():
-    assert Node.from_numbers([0, 0]) == Node()
-
-
-def test_build_tree_with_metadata():
-    assert Node.from_numbers([0, 1, 42]) == Node(metadata=[42])
-
-
-def test_build_tree_with_child():
-    assert Node.from_numbers([1, 0, 0, 0]) == Node(children=[Node()])
-
-
 def test_build_tree():
     assert Node.from_numbers(parse_input(TEST_INPUT)) == Node(
         children=[
