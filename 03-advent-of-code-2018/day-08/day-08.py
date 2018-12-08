@@ -69,7 +69,13 @@ class Node:
         return node, index + nb_metadata
 
     def value(self):
-        return sum(self.metadata)
+        if not self.children:
+            return sum(self.metadata)
+        return sum(
+            self.children[index - 1].value()
+            for index in self.metadata
+            if 0 < index <= len(self.children)
+        )
 
 
 def test_sum_metadata():
@@ -83,6 +89,15 @@ def sum_metadata(node):
 
 def test_node_value_no_children():
     assert Node(metadata=[10, 11, 12]).value() == 33
+
+
+def test_node_value_with_children():
+    assert Node(children=[Node(metadata=[99])], metadata=[2]).value() == 0
+
+
+def test_node_value_test_input():
+    tree = Node.from_numbers(parse_input(TEST_INPUT))
+    assert tree.value() == 66
 
 
 def main():
