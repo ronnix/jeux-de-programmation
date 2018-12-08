@@ -46,8 +46,9 @@ class Node:
             child, length = cls._from_numbers(numbers[index:])
             node.children.append(child)
             index += length
-        node.metadata = numbers[index : index + nb_metadata]
-        return node, index + nb_metadata
+        length = index + nb_metadata
+        node.metadata = numbers[index:length]
+        return node, length
 
     def sum_metadata(self):
         return sum(self.metadata) + sum(child.sum_metadata() for child in self.children)
