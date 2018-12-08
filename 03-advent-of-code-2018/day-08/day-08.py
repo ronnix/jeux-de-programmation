@@ -53,9 +53,7 @@ class Node:
 
     @classmethod
     def from_numbers(cls, numbers):
-        node, length = cls._from_numbers(numbers)
-        assert length == len(numbers)
-        return node
+        return cls._from_numbers(numbers)[0]
 
     @classmethod
     def _from_numbers(cls, numbers):
