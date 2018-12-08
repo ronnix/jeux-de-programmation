@@ -69,10 +69,19 @@ class Node:
         return node, index + nb_metadata
 
 
+def test_sum_metadata():
+    tree = Node.from_numbers(parse_input(TEST_INPUT))
+    assert sum_metadata(tree) == 138
+
+
+def sum_metadata(node):
+    return sum(node.metadata) + sum(sum_metadata(child) for child in node.children)
+
+
 def main():
     numbers = parse_input(sys.stdin.read())
     tree = Node.from_numbers(numbers)
-    print(tree)
+    print(sum_metadata(tree))
 
 
 if __name__ == "__main__":
