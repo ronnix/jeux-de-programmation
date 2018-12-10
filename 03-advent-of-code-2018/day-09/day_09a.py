@@ -1,6 +1,11 @@
 #!/usr/bin/env python
+"""
+First implementation (too slow for part 2)
+"""
 import sys
+import time
 from collections import defaultdict
+from contextlib import contextmanager
 
 import pytest
 
@@ -34,7 +39,6 @@ def parse(text):
         6,
         32,
     ),
-
 ])
 def test_add_marble(marbles, current, number, new_marbles, new_current, high_score):
     m = Marbles(marbles, players=2, current=current)
@@ -87,11 +91,28 @@ def test_high_score(players, last_marble, high_score):
     assert marbles.high_score() == high_score
 
 
+@contextmanager
+def timeit(label):
+    start = time.monotonic()
+    yield
+    end = time.monotonic()
+    print(f"{label}: {end - start:.2}s")
+
+
 def main():
     players, last_marble = parse(sys.stdin.read())
-    marbles = Marbles([0], players=players)
-    marbles.play_marbles_until(last_marble)
-    print(marbles.high_score())
+
+    # Part 1
+    with timeit("Part 1"):
+        marbles = Marbles([0], players=players)
+        marbles.play_marbles_until(last_marble)
+        print(marbles.high_score())
+
+    # Part 2
+    with timeit("Part 2"):
+        marbles = Marbles([0], players=players)
+        marbles.play_marbles_until(last_marble * 100)
+        print(marbles.high_score())
 
 
 if __name__ == '__main__':
