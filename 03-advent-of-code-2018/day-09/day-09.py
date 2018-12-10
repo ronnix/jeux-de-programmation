@@ -51,6 +51,10 @@ class Marbles(list):
         self.players = players
         self.scores = defaultdict(int)
 
+    def play_marbles_until(self, last_marble):
+        for number in range(1, last_marble + 1):
+            self.play_marble(number)
+
     def play_marble(self, number):
         if number % 23 != 0:
             self.current = (self.current + 2) % len(self)
@@ -69,9 +73,25 @@ class Marbles(list):
         return max(self.scores.values()) if self.scores else 0
 
 
+@pytest.mark.parametrize("players, last_marble, high_score", [
+    (9, 32, 32),
+    (10, 1618, 8317),
+    (13, 7999, 146373),
+    (17, 1104, 2764),
+    (21, 6111, 54718),
+    (30, 5807, 37305),
+])
+def test_high_score(players, last_marble, high_score):
+    marbles = Marbles([0], players=players)
+    marbles.play_marbles_until(last_marble)
+    assert marbles.high_score() == high_score
+
+
 def main():
-    players, points = parse(sys.stdin.read())
-    print(players, points)
+    players, last_marble = parse(sys.stdin.read())
+    marbles = Marbles([0], players=players)
+    marbles.play_marbles_until(last_marble)
+    print(marbles.high_score())
 
 
 if __name__ == '__main__':
