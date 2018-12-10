@@ -27,18 +27,24 @@ def parse(text):
 
 ])
 def test_add_marble(marbles, current, number, new_marbles, new_current):
-    assert add_marble(marbles, current, number) == (new_marbles, new_current)
+    m = Marbles(marbles, current=current)
+    m.add(number)
+    assert m == new_marbles
+    assert m.current == new_current
 
 
-def add_marble(marbles, current, number):
-    new_marbles = marbles.copy()
-    new_current = (current + 2) % len(marbles)
-    if new_current == 0:
-        new_current = len(marbles)
-        new_marbles.append(number)
-    else:
-        new_marbles.insert(new_current, number)
-    return new_marbles, new_current
+class Marbles(list):
+    def __init__(self, args, current=0):
+        super().__init__(args)
+        self.current = current
+
+    def add(self, number):
+        self.current = (self.current + 2) % len(self)
+        if self.current == 0:
+            self.current = len(self)
+            self.append(number)
+        else:
+            self.insert(self.current, number)
 
 
 def main():
