@@ -24,6 +24,13 @@ def parse(text):
         [0, 16, 8, 17, 4, 18, 9, 19, 2, 20, 10, 21, 5, 22, 11, 1, 12, 6, 13, 3, 14, 7, 15],
         13,
     ),
+    (
+        [0, 16, 8, 17, 4, 18, 9, 19, 2, 20, 10, 21, 5, 22, 11, 1, 12, 6, 13, 3, 14, 7, 15],
+        13,
+        23,
+        [0, 16, 8, 17, 4, 18, 19, 2, 20, 10, 21, 5, 22, 11, 1, 12, 6, 13, 3, 14, 7, 15],
+        6,
+    ),
 
 ])
 def test_add_marble(marbles, current, number, new_marbles, new_current):
@@ -39,12 +46,16 @@ class Marbles(list):
         self.current = current
 
     def add(self, number):
-        self.current = (self.current + 2) % len(self)
-        if self.current == 0:
-            self.current = len(self)
-            self.append(number)
+        if number % 23 != 0:
+            self.current = (self.current + 2) % len(self)
+            if self.current == 0:
+                self.current = len(self)
+                self.append(number)
+            else:
+                self.insert(self.current, number)
         else:
-            self.insert(self.current, number)
+            self.current = (self.current - 7) % len(self)
+            self.pop(self.current)
 
 
 def main():
