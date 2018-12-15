@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pytest
 
 
@@ -22,3 +23,32 @@ def cell_power_level(coords=None, serial_number=None):
     power_level *= rack_id
     hundreds_digit = power_level // 100 % 10
     return hundreds_digit - 5
+
+
+@pytest.mark.parametrize("serial_number, coords, total", [
+    (18, (33, 45), 29),
+    (42, (21, 61), 30),
+])
+def test_square_with_largest_power_level(serial_number, coords, total):
+    assert square_with_largest_power_level(serial_number) == (total, coords)
+
+
+def square_with_largest_power_level(serial_number):
+    return max(
+        (square_power_level((x, y), serial_number), (x, y))
+        for x in range(1, 298)
+        for y in range(1, 298)
+    )
+
+
+def square_power_level(coords, serial_number):
+    x, y = coords
+    return sum(
+        cell_power_level((x + dx, y + dy), serial_number)
+        for dx in range(3)
+        for dy in range(3)
+    )
+
+
+if __name__ == '__main__':
+    print(square_with_largest_power_level(8199))
