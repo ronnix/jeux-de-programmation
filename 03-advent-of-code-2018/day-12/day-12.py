@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import time
+from collections import deque
 from contextlib import contextmanager
 from typing import NamedTuple, Tuple
 
 import pytest
-from tqdm import tqdm
 
 
 @contextmanager
@@ -106,16 +106,30 @@ class Rule(NamedTuple):
         )
 
 
-def solve(generations):
+def solve(generations, threshold=3):
     with open("input.txt") as input_file:
         state = State.from_string(input_file.readline().strip()[15:])
         rules = [
             Rule.from_string(line) for line in input_file if line.strip().endswith("#")
         ]
 
-    for _ in tqdm(range(generations)):
-        state = state.apply(rules)
-    print(sum(state))
+    growth_history = deque(maxlen=threshold)
+    value = sum(state)
+    for generation in range(1, generations + 1):
+        new_state = state.apply(rules)
+        new_value = sum(new_state)
+        growth = new_value - value
+        growth_history.append(growth)
+
+        if growth_history.count(growth) == threshold:
+            print(f"Steady growth of {growth} for {threshold} steps after {generation} generations")
+            remaining = generations - generation
+            projected = new_value + (growth * remaining)
+            print(f"Projected value after {generations} is {projected}")
+            break
+
+        state = new_state
+        value = new_value
 
 
 def main():
