@@ -1,7 +1,18 @@
 #!/usr/bin/env python
+import time
+from contextlib import contextmanager
 from typing import NamedTuple, Tuple
 
 import pytest
+from tqdm import tqdm
+
+
+@contextmanager
+def timeit(label):
+    start = time.monotonic()
+    yield
+    end = time.monotonic()
+    print(f"{label}: {end - start:.2}s")
 
 
 def test_initial_state():
@@ -95,15 +106,24 @@ class Rule(NamedTuple):
         )
 
 
-def main():
+def solve(generations):
     with open("input.txt") as input_file:
         state = State.from_string(input_file.readline().strip()[15:])
         rules = [
             Rule.from_string(line) for line in input_file if line.strip().endswith("#")
         ]
-    for _ in range(20):
+
+    for _ in tqdm(range(generations)):
         state = state.apply(rules)
     print(sum(state))
+
+
+def main():
+    with timeit("Part 1"):
+        solve(20)
+
+    with timeit("Part 2"):
+        solve(50_000_000_000)
 
 
 if __name__ == "__main__":
