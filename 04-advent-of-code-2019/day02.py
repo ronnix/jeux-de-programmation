@@ -45,13 +45,27 @@ def run_intcode_program(program, pc=0):
 
 
 def part1(initial):
-    initial[1] = 12
-    initial[2] = 2
-    final = run_intcode_program(initial)
+    memory = initial.copy()
+    memory[1] = 12
+    memory[2] = 2
+    final = run_intcode_program(memory)
     return final[0]
+
+
+def part2(initial, expected_output):
+    for noun in range(0, 100):
+        for verb in range(0, 100):
+            memory = initial.copy()
+            memory[1] = noun
+            memory[2] = verb
+            final = run_intcode_program(memory)
+            if final[0] == expected_output:
+                return 100 * noun + verb
+    raise RuntimeError("No inputs")
 
 
 if __name__ == "__main__":
     with open("day02.txt") as file_:
         values = [int(n) for n in file_.read().split(",")]
-    print("Part 1:", part1(values))
+    print("Part 1:", part1(initial=values))
+    print("Part 2:", part2(initial=values, expected_output=19690720))
