@@ -116,13 +116,11 @@ def test_part1(data, res):
 
 
 def total_steps(p, wires):
-    wires = list(wires)
     return sum(steps(p, wire) for wire in wires)
 
 
 def steps(p, wire):
     count = 0
-    wire = list(wire)
     for segment in wire:
         x = intersection(segment, (p, p))
         if x is not None:
