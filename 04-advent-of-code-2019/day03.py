@@ -15,6 +15,16 @@ class Point(NamedTuple):
         return abs(self.x) + abs(self.y)
 
 
+class Segment(NamedTuple):
+    origin: Point
+    destination: Point
+
+    def length(self):
+        dx = abs(self.destination.x - self.origin.x)
+        dy = abs(self.destination.y - self.origin.y)
+        return dx + dy
+
+
 def parse_input(data):
     return [line.split(",") for line in data.splitlines()]
 
@@ -32,7 +42,7 @@ def build_segments(moves):
             destination = origin + Point(-amount, 0)
         elif direction == "R":
             destination = origin + Point(amount, 0)
-        yield (origin, destination)
+        yield Segment(origin, destination)
         origin = destination
 
 
@@ -105,7 +115,48 @@ def test_part1(data, res):
     assert part1(*wires) == res
 
 
+def total_steps(p, wires):
+    wires = list(wires)
+    return sum(steps(p, wire) for wire in wires)
+
+
+def steps(p, wire):
+    count = 0
+    wire = list(wire)
+    for segment in wire:
+        x = intersection(segment, (p, p))
+        if x is not None:
+            count += Segment(segment.origin, x).length()
+            break
+        count += segment.length()
+    return count
+
+
+def part2(wire1, wire2):
+    return min(total_steps(p, [wire1, wire2]) for p in intersections(wire1, wire2))
+
+
+@pytest.mark.parametrize(
+    "data,res",
+    [
+        ("R8,U5,L5,D3\nU7,R6,D4,L4", 30),
+        (("R75,D30,R83,U83,L12,D49,R71,U7,L72\nU62,R66,U55,R34,D71,R55,D58,R83"), 610),
+        (
+            (
+                "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\n"
+                "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"
+            ),
+            410,
+        ),
+    ],
+)
+def test_part2(data, res):
+    wire1, wire2 = [list(build_segments(moves)) for moves in parse_input(data)]
+    assert part2(wire1, wire2) == res
+
+
 if __name__ == "__main__":
     with open("day03.txt") as file_:
-        wires = [build_segments(moves) for moves in parse_input(file_.read())]
+        wires = [list(build_segments(moves)) for moves in parse_input(file_.read())]
     print("Part 1:", part1(*wires))
+    print("Part 2:", part2(*wires))
