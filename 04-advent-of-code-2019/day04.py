@@ -14,8 +14,14 @@ def test_not_matches(password):
 
 
 def matches(password):
-    if not re.search(r"(?P<digit>[0-9])(?P=digit)", password):  # 2 identical digits
-        return False
+    return has_two_adjacent_digits(password) and digits_never_decrease(password)
+
+
+def has_two_adjacent_digits(password):
+    return re.search(r"(?P<digit>[0-9])(?P=digit)", password) is not None
+
+
+def digits_never_decrease(password):
     digits = (int(char) for char in password)
     previous = 0
     for digit in digits:
