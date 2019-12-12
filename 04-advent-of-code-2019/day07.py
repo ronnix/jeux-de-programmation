@@ -173,7 +173,71 @@ def part1(program):
     return max_signal
 
 
+@pytest.mark.parametrize(
+    "max_signal,phase_setting,program",
+    [
+        (
+            139629729,
+            (9, 8, 7, 6, 5),
+            "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,"
+            "27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5",
+        ),
+        (
+            18216,
+            (9, 7, 8, 5, 6),
+            "3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,"
+            "-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,"
+            "53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10",
+        ),
+    ],
+)
+def test_max_thruster_output_signal_feedback_mode(max_signal, phase_setting, program):
+    assert max_thruster_output_signal_feedback_mode(program) == (
+        max_signal,
+        phase_setting,
+    )
+
+
+def max_thruster_output_signal_feedback_mode(program):
+    return max(
+        (
+            thruster_output_signal_feedback_mode(program, phase_setting_sequence),
+            phase_setting_sequence,
+        )
+        for phase_setting_sequence in permutations([5, 6, 7, 8, 9])
+    )
+
+
+def thruster_output_signal_feedback_mode(program, phase_setting_sequence):
+    # Initialize amps
+    amps = {}
+    for i, phase_setting in enumerate(phase_setting_sequence):
+        amps[chr(ord("A") + i)] = coroutine = IntcodeComputer(program).run()
+        next(coroutine)  # start execution
+        coroutine.send(phase_setting)
+
+    # Feedback loop
+    input_ = 0
+    running = set(amps)
+    while running:
+        for name, coroutine in amps.items():
+            if name not in running:
+                continue
+            input_ = coroutine.send(input_)  # get output to feed as next input
+            try:
+                next(coroutine)  # continue running
+            except StopIteration:
+                running.remove(name)  # halt
+    return input_
+
+
+def part2(program):
+    max_signal, _ = max_thruster_output_signal_feedback_mode(program)
+    return max_signal
+
+
 if __name__ == "__main__":
     with open("day07.txt") as file_:
         program = file_.read()
     print("Part 1:", part1(program))
+    print("Part 2:", part2(program))
