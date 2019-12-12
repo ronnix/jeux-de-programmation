@@ -8,8 +8,8 @@ import pytest
 class Opcode(Enum):
     ADD = 1
     MUL = 2
-    STORE = 3
-    LOAD = 4
+    INPUT = 3
+    OUTPUT = 4
     JUMP_IF_TRUE = 5
     JUMP_IF_FALSE = 6
     LT = 7
@@ -37,8 +37,8 @@ class Instruction(NamedTuple):
     _operands = {
         Opcode.ADD.value: 3,
         Opcode.MUL.value: 3,
-        Opcode.STORE.value: 1,
-        Opcode.LOAD.value: 1,
+        Opcode.INPUT.value: 1,
+        Opcode.OUTPUT.value: 1,
         Opcode.JUMP_IF_TRUE.value: 2,
         Opcode.JUMP_IF_FALSE.value: 2,
         Opcode.LT.value: 3,
@@ -89,9 +89,9 @@ class IntcodeComputer:
                 src1 = instruction.read_operand(1, self.program, pc)
                 src2 = instruction.read_operand(2, self.program, pc)
                 instruction.write_operand(3, self.program, pc, src1 * src2)
-            elif instruction.opcode == Opcode.STORE.value:
+            elif instruction.opcode == Opcode.INPUT.value:
                 instruction.write_operand(1, self.program, pc, inputs.pop(0))
-            elif instruction.opcode == Opcode.LOAD.value:
+            elif instruction.opcode == Opcode.OUTPUT.value:
                 outputs.append(instruction.read_operand(1, self.program, pc))
             elif instruction.opcode == Opcode.JUMP_IF_TRUE.value:
                 condition = instruction.read_operand(1, self.program, pc)
