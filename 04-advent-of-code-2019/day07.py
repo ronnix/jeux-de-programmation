@@ -75,8 +75,7 @@ class IntcodeComputer:
     def __init__(self, program):
         self.program = [int(n) for n in program.split(",")]
 
-    def run(self, inputs, pc=0):
-        outputs = []
+    def run(self, pc=0):
         while True:
             instruction = Instruction.decode(self.program[pc])
             if instruction.opcode == Opcode.HALT.value:
@@ -90,9 +89,11 @@ class IntcodeComputer:
                 src2 = instruction.read_operand(2, self.program, pc)
                 instruction.write_operand(3, self.program, pc, src1 * src2)
             elif instruction.opcode == Opcode.INPUT.value:
-                instruction.write_operand(1, self.program, pc, inputs.pop(0))
+                value = yield
+                instruction.write_operand(1, self.program, pc, value)
             elif instruction.opcode == Opcode.OUTPUT.value:
-                outputs.append(instruction.read_operand(1, self.program, pc))
+                value = instruction.read_operand(1, self.program, pc)
+                yield value
             elif instruction.opcode == Opcode.JUMP_IF_TRUE.value:
                 condition = instruction.read_operand(1, self.program, pc)
                 target = instruction.read_operand(2, self.program, pc)
@@ -118,7 +119,6 @@ class IntcodeComputer:
             else:
                 raise ValueError(f"invalid opcode {instruction.opcode}")
             pc += instruction.size()
-        return outputs
 
 
 def parse_input(text):
@@ -159,10 +159,12 @@ def max_thruster_output_signal(program):
 
 def thruster_output_signal(program, phase_setting_sequence):
     input_ = 0
-    for phase in phase_setting_sequence:
+    for phase_setting in phase_setting_sequence:
         amp = IntcodeComputer(program)
-        outputs = amp.run(inputs=[phase, input_])
-        input_ = outputs[0]
+        coroutine = amp.run()
+        next(coroutine)  # start coroutine
+        coroutine.send(phase_setting)
+        input_ = coroutine.send(input_)
     return input_
 
 
