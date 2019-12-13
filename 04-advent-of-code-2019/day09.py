@@ -207,8 +207,16 @@ def part1(program):
     return coroutine.send(1)
 
 
+def part2(program):
+    computer = IntcodeComputer(program)
+    coroutine = computer.run()
+    next(coroutine)
+    return coroutine.send(2)
+
+
 if __name__ == "__main__":
     with open("day09.txt") as file_:
         program = file_.read()
     # logging.basicConfig(level=logging.DEBUG)
     print("Part 1:", part1(program))
+    print("Part 2:", part2(program))
