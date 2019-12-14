@@ -1,4 +1,6 @@
 from collections import defaultdict
+from heapq import heappop, heappush
+from math import atan2, pi
 from textwrap import dedent
 from typing import NamedTuple
 
@@ -16,22 +18,16 @@ class Vector(NamedTuple):
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y)
 
-    def in_line_of_sight(self, blocking, blocked):
-        to_blocking = blocking - self
-        to_blocked = blocked - self
-        colinear = to_blocked.colinear(to_blocking)
-        same_direction = to_blocked.same_direction(to_blocking)
-        further_away = to_blocked.squared_norm() > to_blocking.squared_norm()
-        return colinear and same_direction and further_away
-
-    def colinear(self, other):
-        return self.x * other.y == self.y * other.x
-
-    def same_direction(self, other):
-        return sign(self.x) == sign(other.x) and sign(self.y) == sign(other.y)
-
     def squared_norm(self):
         return self.x ** 2 + self.y ** 2
+
+    def angle(self):
+        angle = atan2(self.y, self.x) + (pi / 2.0)
+        while angle < 0.0:
+            angle += 2.0 * pi
+        while angle > 2.0 * pi:
+            angle -= 2.0 * pi
+        return angle
 
 
 def test_count_observable_asteroids():
@@ -172,15 +168,12 @@ def count_observable_asteroids(asteroids):
 
 
 def observable_from(pos, asteroids):
-    observable = set()
-    for target in asteroids - {pos}:
-        visible = True
-        for obstacle in asteroids - {pos, target}:
-            if pos.in_line_of_sight(obstacle, target):
-                visible = False
-                break
-        if visible:
-            observable.add(target)
+    observable = defaultdict(list)
+    for asteroid in asteroids - {pos}:
+        looking_to_asteroid = asteroid - pos
+        angle = looking_to_asteroid.angle()
+        distance = looking_to_asteroid.squared_norm()
+        heappush(observable[angle], (distance, asteroid))
     return observable
 
 
@@ -204,5 +197,4 @@ def build_asteroid_map(data):
 if __name__ == "__main__":
     with open("day10.txt") as file_:
         asteroids = build_asteroid_map(file_.read())
-    # logging.basicConfig(level=logging.DEBUG)
     print(f"Part 1:", part1(asteroids))
