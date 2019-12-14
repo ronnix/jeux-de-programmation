@@ -4,6 +4,8 @@ from math import atan2, pi
 from textwrap import dedent
 from typing import NamedTuple
 
+from more_itertools import nth
+
 import pytest
 
 
@@ -159,8 +161,7 @@ def test_max_observable_asteroids(data, count, pos):
 
 
 def part1(asteroids):
-    count, _ = max_observable_asteroids(asteroids)
-    return count
+    return max_observable_asteroids(asteroids)
 
 
 def count_observable_asteroids(asteroids):
@@ -194,7 +195,75 @@ def build_asteroid_map(data):
     return set(_asteroid_positions())
 
 
+def test_vaporization_order():
+    asteroids = build_asteroid_map(
+        dedent(
+            """\
+            .#....#####...#..
+            ##...##.#####..##
+            ##...#...#.#####.
+            ..#.....X...###..
+            ..#.#.....#....##"""
+        )
+    )
+    laser_position = Vector(8, 3)
+    assert list(vaporization_order(laser_position, asteroids)) == [
+        (8, 1),
+        (9, 0),
+        (9, 1),
+        (10, 0),
+        (9, 2),
+        (11, 1),
+        (12, 1),
+        (11, 2),
+        (15, 1),
+        (12, 2),
+        (13, 2),
+        (14, 2),
+        (15, 2),
+        (12, 3),
+        (16, 4),
+        (15, 4),
+        (10, 4),
+        (4, 4),
+        (2, 4),
+        (2, 3),
+        (0, 2),
+        (1, 2),
+        (0, 1),
+        (1, 1),
+        (5, 2),
+        (1, 0),
+        (5, 1),
+        (6, 1),
+        (6, 0),
+        (7, 0),
+        (8, 0),
+        (10, 1),
+        (14, 0),
+        (16, 1),
+        (13, 3),
+        (14, 3),
+    ]
+
+
+def vaporization_order(laser_position, asteroids):
+    observable = observable_from(laser_position, asteroids)
+    while any(len(targets) for targets in observable.values()):
+        for angle, targets in sorted(observable.items()):
+            if targets:
+                distance, vector = heappop(targets)
+                yield (vector.x, vector.y)
+
+
+def part2(asteroids, laser_position):
+    x, y = nth(vaporization_order(laser_position, asteroids), 199)
+    return x * 100 + y
+
+
 if __name__ == "__main__":
     with open("day10.txt") as file_:
         asteroids = build_asteroid_map(file_.read())
-    print(f"Part 1:", part1(asteroids))
+    count, position = part1(asteroids)
+    print(f"Part 1:", count)
+    print(f"Part 2:", part2(asteroids, position))
