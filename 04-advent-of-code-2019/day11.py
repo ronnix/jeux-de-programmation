@@ -237,6 +237,17 @@ class HullPaintingRobot:
     def number_of_painted_panels(self):
         return len(self.grid)
 
+    def print_grid(self):
+        min_x = min(p[0] for p in self.grid)
+        max_x = max(p[0] for p in self.grid)
+        min_y = min(p[1] for p in self.grid)
+        max_y = max(p[1] for p in self.grid)
+        for y in range(max_y, min_y - 1, -1):
+            for x in range(min_x, max_x + 1):
+                color = self.grid.get((x, y), 0)
+                print("\u2B1B" if color == 0 else "\u2B1C", end="")
+            print()
+
 
 def parse_input(text):
     return [int(n) for n in text.split(",")]
@@ -248,8 +259,17 @@ def part1(program):
     return robot.number_of_painted_panels()
 
 
+def part2(program):
+    robot = HullPaintingRobot(program)
+    robot.grid[(0, 0)] = 1  # start on a white panel
+    robot.run()
+    robot.print_grid()
+
+
 if __name__ == "__main__":
     with open("day11.txt") as file_:
         program = file_.read()
     # logging.basicConfig(level=logging.DEBUG)
     print("Part 1:", part1(program))
+    print("Part 2:")
+    part2(program)
