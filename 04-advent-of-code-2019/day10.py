@@ -168,16 +168,19 @@ def part1(asteroids):
 
 
 def count_observable_asteroids(asteroids):
-    observable = defaultdict(set)
-    for candidate in asteroids:
-        for target in asteroids - {candidate}:
-            visible = True
-            for obstacle in asteroids - {candidate, target}:
-                if candidate.in_line_of_sight(obstacle, target):
-                    visible = False
-                    break
-            if visible:
-                observable[candidate].add(target)
+    return {pos: observable_from(pos, asteroids) for pos in asteroids}
+
+
+def observable_from(pos, asteroids):
+    observable = set()
+    for target in asteroids - {pos}:
+        visible = True
+        for obstacle in asteroids - {pos, target}:
+            if pos.in_line_of_sight(obstacle, target):
+                visible = False
+                break
+        if visible:
+            observable.add(target)
     return observable
 
 
