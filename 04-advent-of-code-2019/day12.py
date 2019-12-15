@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from itertools import combinations
+from textwrap import dedent
 
 
 @dataclass
@@ -27,6 +28,17 @@ def parse_input(text):
 class Moon:
     position: Vector
     velocity: Vector
+
+    @property
+    def state(self):
+        return (
+            self.position.x,
+            self.position.y,
+            self.position.z,
+            self.velocity.x,
+            self.velocity.y,
+            self.velocity.z,
+        )
 
     def update_position(self):
         self.position.x += self.velocity.x
@@ -57,10 +69,25 @@ class System:
             Moon(position=position, velocity=Vector(0, 0, 0))
             for position in moon_positions
         ]
+        self.previous_states = set()
 
     def simulate_steps(self, n):
         for _ in range(n):
             self.simulate_step()
+
+    def simulate_until_a_previous_state_repeats(self):
+        nb_steps = 0
+        while True:
+            self.previous_states.add(self.state)
+            nb_steps += 1
+            self.simulate_step()
+            if self.state in self.previous_states:
+                break
+        return nb_steps
+
+    @property
+    def state(self):
+        return sum((moon.state for moon in self.moons), ())
 
     def simulate_step(self):
         self.apply_gravity()
@@ -83,10 +110,31 @@ class System:
         return sum(moon.total_energy for moon in self.moons)
 
 
+def test_repetition():
+    system = System(
+        parse_input(
+            dedent(
+                """\
+                <x=-1, y=0, z=2>
+                <x=2, y=-10, z=-7>
+                <x=4, y=-8, z=8>
+                <x=3, y=5, z=-1>"""
+            )
+        )
+    )
+    assert system.simulate_until_a_previous_state_repeats() == 2772
+
+
 def part1(moon_positions):
     system = System(moon_positions)
     system.simulate_steps(1000)
     return system.total_energy()
+
+
+def part2(moon_positions):
+    system = System(moon_positions)
+    nb_steps = system.simulate_until_a_previous_state_repeats()
+    return nb_steps
 
 
 if __name__ == "__main__":
@@ -94,3 +142,4 @@ if __name__ == "__main__":
         moon_positions = parse_input(file_.read())
     # logging.basicConfig(level=logging.DEBUG)
     print("Part 1:", part1(moon_positions))
+    print("Part 2:", part2(moon_positions))
