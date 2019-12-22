@@ -64,11 +64,12 @@ SIGNED_LONG = "l"
 
 
 class IntcodeComputer:
-    def __init__(self, program, memory_size=1024 * 1024):
+    def __init__(self, program, input_callback, memory_size=1024 * 1024):
         self.memory = array(SIGNED_LONG, [int(n) for n in program.split(",")])
         self.memory.extend([0] * (memory_size - len(self.memory)))
         self.pc = 0
         self.relative_base = 0
+        self.input_callback = input_callback
 
     def run(self):
         while True:
@@ -96,7 +97,7 @@ class IntcodeComputer:
             elif instruction.opcode == Opcode.INPUT.value:
                 dst = self.get_effective_address(instruction, 1)
                 logger.debug("INPUT -> %s", dst)
-                value = yield
+                value = self.input_callback()
                 logger.debug(f"(received {value})")
                 assert value is not None
                 self.memory[dst] = value
