@@ -28,31 +28,31 @@ class Policy(NamedTuple):
         parsed = RE.match(s).groupdict()
         return cls(n1=int(parsed["n1"]), n2=int(parsed["n2"]), letter=parsed["letter"])
 
-    def is_valid_sled_rental(self, password):
-        return self.n1 <= password.count(self.letter) <= self.n2
 
-    def is_valid_toboggan(self, password):
-        return (password[self.n1 - 1] == self.letter) ^ (
-            password[self.n2 - 1] == self.letter
-        )
+def count_valid_passwords(passwords, is_valid):
+    """
+    Count how many passwords are valid according to a given policy
+    """
+    return sum(1 for policy, password in passwords if is_valid(policy, password))
+
+
+def is_valid_sled_rental(policy, password):
+    return policy.n1 <= password.count(policy.letter) <= policy.n2
+
+
+def is_valid_toboggan(policy, password):
+    def position_matches(position):
+        return password[position - 1] == policy.letter
+
+    return position_matches(policy.n1) ^ position_matches(policy.n2)
 
 
 def part1(passwords):
-    """
-    Count how many passwords are valid according to the sled rental policy
-    """
-    return sum(
-        1 for policy, password in passwords if policy.is_valid_sled_rental(password)
-    )
+    return count_valid_passwords(passwords, is_valid_sled_rental)
 
 
 def part2(passwords):
-    """
-    Count how many passwords are valid according to the toboggan policy
-    """
-    return sum(
-        1 for policy, password in passwords if policy.is_valid_toboggan(password)
-    )
+    return count_valid_passwords(passwords, is_valid_toboggan)
 
 
 if __name__ == "__main__":
