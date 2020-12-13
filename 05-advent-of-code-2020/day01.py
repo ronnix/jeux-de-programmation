@@ -1,4 +1,5 @@
 from itertools import combinations
+from math import prod
 
 
 def load_expenses():
@@ -9,15 +10,25 @@ def load_expenses():
         return [int(line) for line in f]
 
 
-def part1(expenses):
+def find_entries_matching_sum(expenses, nb):
     """
     Find expense report entries whose sum is 2020,
     and return their product.
     """
-    for e1, e2 in combinations(expenses, 2):
-        if e1 + e2 == 2020:
-            return e1 * e2
+    for entries in combinations(expenses, nb):
+        if sum(entries) == 2020:
+            return prod(entries)
+
+
+def part1(expenses):
+    return find_entries_matching_sum(expenses, 2)
+
+
+def part2(expenses):
+    return find_entries_matching_sum(expenses, 3)
 
 
 if __name__ == "__main__":
-    print(part1(load_expenses()))
+    expenses = load_expenses()
+    print(part1(expenses))
+    print(part2(expenses))
