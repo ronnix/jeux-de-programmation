@@ -15,32 +15,47 @@ def parse_line(line):
     return Policy.from_string(policy_string), password
 
 
-RE = re.compile(r"^(?P<min>\d+)-(?P<max>\d+) (?P<letter>[a-z])$")
+RE = re.compile(r"^(?P<n1>\d+)-(?P<n2>\d+) (?P<letter>[a-z])$")
 
 
 class Policy(NamedTuple):
-    min: int
-    max: int
+    n1: int
+    n2: int
     letter: str
 
     @classmethod
     def from_string(cls, s):
         parsed = RE.match(s).groupdict()
-        return cls(
-            min=int(parsed["min"]), max=int(parsed["max"]), letter=parsed["letter"]
-        )
+        return cls(n1=int(parsed["n1"]), n2=int(parsed["n2"]), letter=parsed["letter"])
 
-    def is_valid(self, password):
-        return self.min <= password.count(self.letter) <= self.max
+    def is_valid_sled_rental(self, password):
+        return self.n1 <= password.count(self.letter) <= self.n2
+
+    def is_valid_toboggan(self, password):
+        return (password[self.n1 - 1] == self.letter) ^ (
+            password[self.n2 - 1] == self.letter
+        )
 
 
 def part1(passwords):
     """
-    Count how many passwords are valid according to their policy
+    Count how many passwords are valid according to the sled rental policy
     """
-    return sum(1 for policy, password in passwords if policy.is_valid(password))
+    return sum(
+        1 for policy, password in passwords if policy.is_valid_sled_rental(password)
+    )
+
+
+def part2(passwords):
+    """
+    Count how many passwords are valid according to the toboggan policy
+    """
+    return sum(
+        1 for policy, password in passwords if policy.is_valid_toboggan(password)
+    )
 
 
 if __name__ == "__main__":
     passwords = load_passwords()
-    print(part1(passwords))
+    print("Part 1:", part1(passwords))
+    print("Part 2:", part2(passwords))
