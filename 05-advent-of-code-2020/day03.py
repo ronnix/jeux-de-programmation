@@ -1,3 +1,4 @@
+from math import prod
 from textwrap import dedent
 
 import pytest
@@ -58,10 +59,21 @@ class TestTreeMap:
         assert sample_tree_map.height == 11
 
     def test_count_trees(self, sample_tree_map):
+        assert sample_tree_map.count_trees(1, 1) == 2
         assert sample_tree_map.count_trees(3, 1) == 7
+        assert sample_tree_map.count_trees(5, 1) == 3
+        assert sample_tree_map.count_trees(7, 1) == 4
+        assert sample_tree_map.count_trees(1, 2) == 2
 
 
 if __name__ == "__main__":
     with open("day03.txt") as f:
         tree_map = TreeMap(f.read())
     print("Part 1:", tree_map.count_trees(3, 1))
+    print(
+        "Part 2:",
+        prod(
+            tree_map.count_trees(*slope)
+            for slope in [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
+        ),
+    )
