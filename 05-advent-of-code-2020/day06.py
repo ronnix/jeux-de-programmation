@@ -28,6 +28,11 @@ def sample_input():
     )
 
 
+@pytest.fixture
+def sample_groups(sample_input):
+    return make_groups(sample_input)
+
+
 def make_groups(text):
     return [
         [make_bitvector(line.strip()) for line in chunk.splitlines()]
@@ -40,21 +45,23 @@ def make_bitvector(line):
 
 
 def count_answers_any(groups):
-    return sum(bin(reduce(or_, group)).count("1") for group in groups)
+    return sum(popcount(reduce(or_, group)) for group in groups)
 
 
-def test_count_answers_any(sample_input):
-    groups = make_groups(sample_input)
-    assert count_answers_any(groups) == 11
+def popcount(number):
+    return bin(number).count("1")
 
 
-def test_count_answers_all(sample_input):
-    groups = make_groups(sample_input)
-    assert count_answers_all(groups) == 6
+def test_count_answers_any(sample_groups):
+    assert count_answers_any(sample_groups) == 11
+
+
+def test_count_answers_all(sample_groups):
+    assert count_answers_all(sample_groups) == 6
 
 
 def count_answers_all(groups):
-    return sum(bin(reduce(and_, group)).count("1") for group in groups)
+    return sum(popcount(reduce(and_, group)) for group in groups)
 
 
 def part1(groups):
