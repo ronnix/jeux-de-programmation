@@ -49,7 +49,17 @@ def part1(boarding_passes):
     return max(boarding_pass.seat_id for boarding_pass in boarding_passes)
 
 
+def part2(boarding_passes):
+    all_seats = set(range(128 * 8))
+    taken = {boarding_pass.seat_id for boarding_pass in boarding_passes}
+    not_taken = sorted(all_seats - taken)
+    result = [seat for seat in not_taken if seat - 1 in taken and seat + 1 in taken]
+    assert len(result) == 1
+    return result[0]
+
+
 if __name__ == '__main__':
     with open("day05.txt") as f:
         boarding_passes = [BoardingPass(line.strip()) for line in f]
     print("Part 1:", part1(boarding_passes))
+    print("Part 2:", part2(boarding_passes))
