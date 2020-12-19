@@ -45,6 +45,8 @@ def run(program):
         if program_counter in already_executed:
             raise InfiniteLoop(accumulator)
         already_executed.add(program_counter)
+        if program_counter == len(program):
+            return accumulator
         instruction, operand = program[program_counter]
         if instruction == "nop":
             program_counter += 1
@@ -67,7 +69,27 @@ def part1(program):
         return exc.accumulator
 
 
+def test_fix_program(sample_program):
+    assert fix_program(sample_program) == 8
+
+
+def fix_program(program):
+    for index, (instruction, operand) in enumerate(program):
+        try:
+            if instruction == "nop":
+                return run(program[:index] + [("jmp", operand)] + program[index + 1 :])
+            elif instruction == "jmp":
+                return run(program[:index] + [("nop", operand)] + program[index + 1 :])
+        except InfiniteLoop:
+            pass
+
+
+def part2(program):
+    return fix_program(program)
+
+
 if __name__ == "__main__":
     with open("day08.txt") as f:
         program = load_program(f.read())
     print("Part 1:", part1(program))
+    print("Part 2:", part2(program))
