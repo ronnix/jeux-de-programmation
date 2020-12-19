@@ -1,27 +1,14 @@
 from functools import reduce
-from operator import or_
+from operator import and_, or_
 from textwrap import dedent
 
-
-def make_groups(text):
-    return [
-        [make_bitvector(line.strip()) for line in chunk.splitlines()]
-        for chunk in text.split("\n\n")
-    ]
+import pytest
 
 
-def make_bitvector(line):
-    return sum(2 ** (ord(char) - ord("a")) for char in line)
-
-
-def count_answers(groups):
-    return sum(bin(reduce(or_, group)).count("1") for group in groups)
-
-
-def test_make_groups():
-    groups = make_groups(
-        dedent(
-            """\
+@pytest.fixture
+def sample_input():
+    return dedent(
+        """\
             abc
 
             a
@@ -38,19 +25,48 @@ def test_make_groups():
 
             b
             """
-        )
     )
-    assert len(groups) == 5
-    assert len(groups[0]) == 1
-    assert bin(groups[0][0]).count("1") == 3
-    assert count_answers(groups) == 11
+
+
+def make_groups(text):
+    return [
+        [make_bitvector(line.strip()) for line in chunk.splitlines()]
+        for chunk in text.split("\n\n")
+    ]
+
+
+def make_bitvector(line):
+    return sum(2 ** (ord(char) - ord("a")) for char in line)
+
+
+def count_answers_any(groups):
+    return sum(bin(reduce(or_, group)).count("1") for group in groups)
+
+
+def test_count_answers_any(sample_input):
+    groups = make_groups(sample_input)
+    assert count_answers_any(groups) == 11
+
+
+def test_count_answers_all(sample_input):
+    groups = make_groups(sample_input)
+    assert count_answers_all(groups) == 6
+
+
+def count_answers_all(groups):
+    return sum(bin(reduce(and_, group)).count("1") for group in groups)
 
 
 def part1(groups):
-    return count_answers(groups)
+    return count_answers_any(groups)
+
+
+def part2(groups):
+    return count_answers_all(groups)
 
 
 if __name__ == "__main__":
     with open("day06.txt") as f:
         groups = make_groups(f.read())
     print("Part 1:", part1(groups))
+    print("Part 2:", part2(groups))
