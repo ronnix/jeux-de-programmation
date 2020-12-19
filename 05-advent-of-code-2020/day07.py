@@ -24,21 +24,21 @@ def sample_rules():
 
 
 def test_parse_rules(sample_rules):
-    assert sample_rules == [
-        ("light red", {(1, "bright white"), (2, "muted yellow")}),
-        ("dark orange", {(3, "bright white"), (4, "muted yellow")}),
-        ("bright white", {(1, "shiny gold")}),
-        ("muted yellow", {(2, "shiny gold"), (9, "faded blue")}),
-        ("shiny gold", {(1, "dark olive"), (2, "vibrant plum")}),
-        ("dark olive", {(3, "faded blue"), (4, "dotted black")}),
-        ("vibrant plum", {(5, "faded blue"), (6, "dotted black")}),
-        ("faded blue", set()),
-        ("dotted black", set()),
-    ]
+    assert sample_rules == {
+        "light red": {(1, "bright white"), (2, "muted yellow")},
+        "dark orange": {(3, "bright white"), (4, "muted yellow")},
+        "bright white": {(1, "shiny gold")},
+        "muted yellow": {(2, "shiny gold"), (9, "faded blue")},
+        "shiny gold": {(1, "dark olive"), (2, "vibrant plum")},
+        "dark olive": {(3, "faded blue"), (4, "dotted black")},
+        "vibrant plum": {(5, "faded blue"), (6, "dotted black")},
+        "faded blue": set(),
+        "dotted black": set(),
+    }
 
 
 def parse_rules(text):
-    return [parse_rule(line.strip()) for line in text.splitlines()]
+    return dict(parse_rule(line.strip()) for line in text.splitlines())
 
 
 def parse_rule(line):
@@ -68,7 +68,7 @@ def test_possible_containers(sample_rules):
 
 def possible_containers(rules, target_bag_type):
     result = set()
-    for container, contents in rules:
+    for container, contents in rules.items():
         for number, bag_type in contents:
             if bag_type == target_bag_type and container not in result:
                 result.add(container)
@@ -76,7 +76,19 @@ def possible_containers(rules, target_bag_type):
     return result
 
 
+def test_contained_bags(sample_rules):
+    assert contained_bags(sample_rules, "shiny gold") == 32
+
+
+def contained_bags(rules, bag_type):
+    return sum(
+        (number + number * contained_bags(rules, contained_bag_type))
+        for number, contained_bag_type in rules[bag_type]
+    )
+
+
 if __name__ == "__main__":
     with open("day07.txt") as f:
         rules = parse_rules(f.read())
     print("Part 1:", len(possible_containers(rules, "shiny gold")))
+    print("Part 2:", contained_bags(rules, "shiny gold"))
