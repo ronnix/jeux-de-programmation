@@ -1,6 +1,8 @@
 from itertools import combinations
 from textwrap import dedent
 
+from more_itertools import substrings
+
 import pytest
 
 
@@ -52,7 +54,25 @@ def part1(numbers):
     return first_invalid_number(numbers, 25)
 
 
+def encryption_weakness(numbers, invalid_number):
+    sequences = (s for s in substrings(numbers) if len(s) > 1)
+    for sequence in sequences:
+        if sum(sequence) == invalid_number:
+            return min(sequence) + max(sequence)
+
+
+def test_encryption_weakness(sample_input):
+    invalid_number = first_invalid_number(sample_input, 5)
+    assert encryption_weakness(sample_input, invalid_number) == 62
+
+
+def part2(numbers):
+    invalid_number = part1(numbers)
+    return encryption_weakness(numbers, invalid_number)
+
+
 if __name__ == "__main__":
     with open("day09.txt") as f:
         numbers = parse_input(f.read())
     print("Part 1:", part1(numbers))
+    print("Part 2:", part2(numbers))
