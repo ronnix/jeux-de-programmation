@@ -35,7 +35,8 @@ def test_grid(sample_grid, sample_input):
 
 
 def test_first_step(sample_grid):
-    assert sample_grid.next_step().to_text() == dedent(
+    grid = sample_grid.next_step(Part1Rules)
+    assert grid.to_text() == dedent(
         """\
         #.##.##.##
         #######.##
@@ -51,7 +52,8 @@ def test_first_step(sample_grid):
 
 
 def test_second_step(sample_grid):
-    assert sample_grid.next_step().next_step().to_text() == dedent(
+    grid = sample_grid.next_step(Part1Rules).next_step(Part1Rules)
+    assert grid.to_text() == dedent(
         """\
         #.LL.L#.##
         #LLLLLL.L#
@@ -69,7 +71,7 @@ def test_second_step(sample_grid):
 def test_fifth_step(sample_grid):
     grid = sample_grid
     for _ in range(5):
-        grid = grid.next_step()
+        grid = grid.next_step(Part1Rules)
     assert grid.to_text() == dedent(
         """\
         #.#L.L#.##
@@ -86,12 +88,12 @@ def test_fifth_step(sample_grid):
 
 
 def test_number_of_stable_occupied_seats(sample_grid):
-    assert number_of_stable_occupied_seats(sample_grid) == 37
+    assert number_of_stable_occupied_seats(sample_grid, Part1Rules) == 37
 
 
-def number_of_stable_occupied_seats(grid):
+def number_of_stable_occupied_seats(grid, rules):
     while True:
-        next_ = grid.next_step()
+        next_ = grid.next_step(rules)
         if next_ == grid:
             break
         grid = next_
@@ -148,11 +150,11 @@ def number_of_stable_occupied_seats(grid):
 )
 def test_visible_occupied_seats(grid, coords, nb):
     grid = Grid.from_text(grid)
-    assert grid.number_of_visible_occupied_seats(*coords) == nb
+    assert Part2Rules.number_of_visible_occupied_seats(grid, *coords) == nb
 
 
 def test_first_step_part_2(sample_grid):
-    assert sample_grid.next_step_2().to_text() == dedent(
+    assert sample_grid.next_step(Part2Rules).to_text() == dedent(
         """\
         #.##.##.##
         #######.##
@@ -168,7 +170,7 @@ def test_first_step_part_2(sample_grid):
 
 
 def test_second_step_part_2(sample_grid):
-    result = sample_grid.next_step_2().next_step_2()
+    result = sample_grid.next_step(Part2Rules).next_step(Part2Rules)
     assert result.to_text() == dedent(
         """\
         #.LL.LL.L#
@@ -185,16 +187,7 @@ def test_second_step_part_2(sample_grid):
 
 
 def test_number_of_stable_occupied_seats_part_2(sample_grid):
-    assert number_of_stable_occupied_seats_part_2(sample_grid) == 26
-
-
-def number_of_stable_occupied_seats_part_2(grid):
-    while True:
-        next_ = grid.next_step_2()
-        if next_ == grid:
-            break
-        grid = next_
-    return grid.number_of_occupied_seats()
+    assert number_of_stable_occupied_seats(sample_grid, Part2Rules) == 26
 
 
 class Grid:
@@ -216,73 +209,10 @@ class Grid:
                 if (dx, dy) != (0, 0):
                     yield dx, dy
 
-    # Rules for part 1
-
-    def adjacent_seats(self, x, y):
-        for dx, dy in self.directions():
-            ax = x + dx
-            ay = y + dy
-            if 0 <= ax < self.width and 0 <= ay < self.height:
-                yield ax, ay
-
-    def number_of_occupied_adjacent_seats(self, x, y):
-        return quantify(self.adjacent_seats(x, y), lambda c: self.at(*c) == "#")
-
-    def next_state(self, x, y):
-        current = self.at(x, y)
-        if current == ".":
-            return "."
-        nb = self.number_of_occupied_adjacent_seats(x, y)
-        if current == "L" and nb == 0:
-            return "#"
-        elif current == "#" and nb >= 4:
-            return "L"
-        else:
-            return current
-
-    def next_step(self):
+    def next_step(self, rules):
         return Grid(
             [
-                "".join(self.next_state(x, y) for x in range(self.width))
-                for y in range(self.height)
-            ]
-        )
-
-    # New rules for part 2
-
-    def visible_occupied_seats(self, x, y):
-        for dx, dy in self.directions():
-            ax, ay = x + dx, y + dy
-            while 0 <= ax < self.width and 0 <= ay < self.height:
-                seat = self.at(ax, ay)
-                if seat == "#":
-                    yield ax, ay
-                    break
-                elif seat == "L":
-                    break
-                ax += dx
-                ay += dy
-
-    def number_of_visible_occupied_seats(self, x, y):
-        seats = list(self.visible_occupied_seats(x, y))
-        return ilen(seats)
-
-    def next_state_2(self, x, y):
-        current = self.at(x, y)
-        if current == ".":
-            return "."
-        nb = self.number_of_visible_occupied_seats(x, y)
-        if current == "L" and nb == 0:
-            return "#"
-        elif current == "#" and nb >= 5:
-            return "L"
-        else:
-            return current
-
-    def next_step_2(self):
-        return Grid(
-            [
-                "".join(self.next_state_2(x, y) for x in range(self.width))
+                "".join(rules.next_state(self, x, y) for x in range(self.width))
                 for y in range(self.height)
             ]
         )
@@ -303,12 +233,72 @@ class Grid:
         return "\n".join(self.data)
 
 
+class Part1Rules:
+    @classmethod
+    def next_state(cls, grid, x, y):
+        current = grid.at(x, y)
+        if current == ".":
+            return "."
+        nb = cls.number_of_occupied_adjacent_seats(grid, x, y)
+        if current == "L" and nb == 0:
+            return "#"
+        elif current == "#" and nb >= 4:
+            return "L"
+        else:
+            return current
+
+    @classmethod
+    def number_of_occupied_adjacent_seats(cls, grid, x, y):
+        return quantify(cls.adjacent_seats(grid, x, y), lambda c: grid.at(*c) == "#")
+
+    @classmethod
+    def adjacent_seats(cls, grid, x, y):
+        for dx, dy in grid.directions():
+            ax = x + dx
+            ay = y + dy
+            if 0 <= ax < grid.width and 0 <= ay < grid.height:
+                yield ax, ay
+
+
+class Part2Rules:
+    @classmethod
+    def next_state(cls, grid, x, y):
+        current = grid.at(x, y)
+        if current == ".":
+            return "."
+        nb = cls.number_of_visible_occupied_seats(grid, x, y)
+        if current == "L" and nb == 0:
+            return "#"
+        elif current == "#" and nb >= 5:
+            return "L"
+        else:
+            return current
+
+    @classmethod
+    def number_of_visible_occupied_seats(cls, grid, x, y):
+        return ilen(cls.visible_occupied_seats(grid, x, y))
+
+    @classmethod
+    def visible_occupied_seats(cls, grid, x, y):
+        for dx, dy in grid.directions():
+            ax, ay = x + dx, y + dy
+            while 0 <= ax < grid.width and 0 <= ay < grid.height:
+                seat = grid.at(ax, ay)
+                if seat == "#":
+                    yield ax, ay
+                    break
+                elif seat == "L":
+                    break
+                ax += dx
+                ay += dy
+
+
 def part1(grid):
-    return number_of_stable_occupied_seats(grid)
+    return number_of_stable_occupied_seats(grid, Part1Rules)
 
 
 def part2(grid):
-    return number_of_stable_occupied_seats_part_2(grid)
+    return number_of_stable_occupied_seats(grid, Part2Rules)
 
 
 if __name__ == "__main__":
