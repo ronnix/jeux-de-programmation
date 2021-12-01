@@ -26,6 +26,10 @@ def test_part1():
 
 
 def part1(numbers):
+    return count_increasing_measurements(numbers)
+
+
+def count_increasing_measurements(numbers):
     return sum(1 if b > a else 0 for a, b in pairwise(numbers))
 
 
@@ -34,7 +38,11 @@ def test_part2():
 
 
 def part2(numbers):
-    return part1(sum(triplet) for triplet in windowed(numbers, 3))
+    return count_increasing_measurements(sliding_sums(numbers))
+
+
+def sliding_sums(numbers):
+    return (sum(triplet) for triplet in windowed(numbers, 3))
 
 
 def read_input():
