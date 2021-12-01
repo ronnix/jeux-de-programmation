@@ -1,6 +1,9 @@
 # https://adventofcode.com/2021/day/1
 
-from itertools import pairwise
+try:
+    from itertools import pairwise  # Python ≥ 3.10
+except:
+    from more_itertools import pairwise
 
 
 SAMPLE_INPUT = """\
