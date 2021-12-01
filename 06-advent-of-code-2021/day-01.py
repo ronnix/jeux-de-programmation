@@ -55,5 +55,6 @@ def parse(text):
 
 
 if __name__ == "__main__":
-    print("Part 1:", part1(parse(read_input())))
-    print("Part 2:", part2(parse(read_input())))
+    measurements = parse(read_input())
+    print("Part 1:", part1(measurements))
+    print("Part 2:", part2(measurements))
