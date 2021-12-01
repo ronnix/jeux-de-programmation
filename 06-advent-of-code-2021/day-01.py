@@ -34,8 +34,7 @@ def test_part2():
 
 
 def part2(numbers):
-    sums = (sum(triplet) for triplet in windowed(numbers, 3))
-    return sum(1 if b > a else 0 for a, b in pairwise(sums))
+    return part1(sum(triplet) for triplet in windowed(numbers, 3))
 
 
 def read_input():
