@@ -26,10 +26,10 @@ def test_part1():
 
 
 def part1(numbers):
-    return count_increasing_measurements(numbers)
+    return count_increasing(numbers)
 
 
-def count_increasing_measurements(numbers):
+def count_increasing(numbers):
     return sum(1 if b > a else 0 for a, b in pairwise(numbers))
 
 
@@ -38,7 +38,7 @@ def test_part2():
 
 
 def part2(numbers):
-    return count_increasing_measurements(sliding_sums(numbers))
+    return count_increasing(sliding_sums(numbers))
 
 
 def sliding_sums(numbers):
