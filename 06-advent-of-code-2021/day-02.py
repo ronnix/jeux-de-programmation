@@ -37,6 +37,35 @@ def movement(command, amount):
     raise ValueError
 
 
+def test_part2():
+    assert part2(parse(SAMPLE_INPUT)) == 900
+
+
+def part2(steps):
+    x, y = integrate_movements_with_aim(steps)
+    return x * y
+
+
+def integrate_movements_with_aim(steps):
+    x, y, aim = 0, 0, 0
+    for step in steps:
+        dx, dy, daim = movement_with_aim(*step, aim)
+        aim += daim
+        x += dx
+        y += dy
+    return x, y
+
+
+def movement_with_aim(command, amount, aim):
+    if command == "forward":
+        return (amount, aim * amount, 0)
+    if command == "down":
+        return (0, 0, amount)
+    if command == "up":
+        return (0, 0, -amount)
+    raise ValueError
+
+
 def read_input():
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -54,3 +83,4 @@ def parse_line(line):
 if __name__ == "__main__":
     steps = parse(read_input())
     print("Part 1:", part1(steps))
+    print("Part 2:", part2(steps))
