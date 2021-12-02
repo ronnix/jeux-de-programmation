@@ -24,21 +24,25 @@ def part1(steps):
 
 
 def integrate_movements(steps):
-    return sum_vectors(movement(*step) for step in steps)
+    return sum_vectors(movement(step) for step in steps)
 
 
 def sum_vectors(vectors):
     return [sum(x) for x in zip(*vectors)]
 
 
-def movement(command, amount):
-    if command == "forward":
-        return (amount, 0)
-    if command == "down":
-        return (0, amount)
-    if command == "up":
-        return (0, -amount)
-    raise ValueError
+def movement(step):
+    # Use the new match statement from Python 3.10
+    # https://docs.python.org/3/tutorial/controlflow.html#tut-match
+    match step:
+        case "forward", amount:
+            return (amount, 0)
+        case "down", amount:
+            return (0, amount)
+        case "up", amount:
+            return (0, -amount)
+        case _:
+            raise ValueError
 
 
 # === Part 2 (imperative) ===
@@ -56,21 +60,23 @@ def part2_imperative(steps):
 def integrate_movements_with_aim(steps):
     x, y, aim = 0, 0, 0
     for step in steps:
-        dx, dy, daim = movement_with_aim(*step, aim)
+        dx, dy, daim = movement_with_aim(step, aim)
         aim += daim
         x += dx
         y += dy
     return x, y
 
 
-def movement_with_aim(command, amount, aim):
-    if command == "forward":
-        return (amount, aim * amount, 0)
-    if command == "down":
-        return (0, 0, amount)
-    if command == "up":
-        return (0, 0, -amount)
-    raise ValueError
+def movement_with_aim(step, aim):
+    match step:  # Python ≥ 3.10
+        case "forward", amount:
+            return (amount, aim * amount, 0)
+        case "down", amount:
+            return (0, 0, amount)
+        case "up", amount:
+            return (0, 0, -amount)
+        case _:
+            raise ValueError
 
 
 # === Part 2 (functional) ===
@@ -91,14 +97,15 @@ def foldl(function, initializer, iterable):  # Haskell-like fold left
 
 def next_state(state, step):
     x, y, aim = state
-    command, amount = step
-    if command == "forward":
-        return (x + amount, y + aim * amount, aim)
-    if command == "down":
-        return (x, y, aim + amount)
-    if command == "up":
-        return (x, y, aim - amount)
-    raise ValueError
+    match step:  # Python ≥ 3.10
+        case "forward", amount:
+            return (x + amount, y + aim * amount, aim)
+        case "down", amount:
+            return (x, y, aim + amount)
+        case "up", amount:
+            return (x, y, aim - amount)
+        case _:
+            raise ValueError
 
 
 # === Input parsing ===

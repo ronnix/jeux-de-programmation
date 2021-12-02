@@ -1,9 +1,6 @@
 # https://adventofcode.com/2021/day/1
 
-try:
-    from itertools import pairwise  # Python ≥ 3.10
-except:
-    from more_itertools import pairwise
+from itertools import pairwise  # Python ≥ 3.10
 
 from more_itertools import windowed
 
