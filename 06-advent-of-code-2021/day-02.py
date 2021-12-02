@@ -20,7 +20,11 @@ def part1(steps):
 
 
 def integrate_movements(steps):
-    return [sum(x) for x in zip(*(movement(*step) for step in steps))]
+    return sum_vectors(movement(*step) for step in steps)
+
+
+def sum_vectors(vectors):
+    return [sum(x) for x in zip(*vectors)]
 
 
 def movement(command, amount):
