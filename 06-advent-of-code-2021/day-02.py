@@ -11,6 +11,9 @@ down 8
 forward 2"""
 
 
+# === Part 1 ===
+
+
 def test_part1():
     assert part1(parse(SAMPLE_INPUT)) == 150
 
@@ -36,6 +39,9 @@ def movement(command, amount):
     if command == "up":
         return (0, -amount)
     raise ValueError
+
+
+# === Part 2 (imperative) ===
 
 
 def test_part2_imperative():
@@ -67,6 +73,9 @@ def movement_with_aim(command, amount, aim):
     raise ValueError
 
 
+# === Part 2 (functional) ===
+
+
 def test_part2_functional():
     assert part2_functional(parse(SAMPLE_INPUT)) == 900
 
@@ -90,6 +99,9 @@ def next_state(state, step):
     if command == "up":
         return (x, y, aim - amount)
     raise ValueError
+
+
+# === Input parsing ===
 
 
 def read_input():

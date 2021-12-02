@@ -21,6 +21,9 @@ SAMPLE_INPUT = """\
 263"""
 
 
+# === Part 1 ===
+
+
 def test_part1():
     assert part1(parse(SAMPLE_INPUT)) == 7
 
@@ -33,6 +36,9 @@ def count_increasing(numbers):
     return sum(1 if b > a else 0 for a, b in pairwise(numbers))
 
 
+# === Part 2 ===
+
+
 def test_part2():
     assert part2(parse(SAMPLE_INPUT)) == 5
 
@@ -43,6 +49,9 @@ def part2(numbers):
 
 def sliding_sums(numbers):
     return (sum(triplet) for triplet in windowed(numbers, 3))
+
+
+# === Input parsing ===
 
 
 def read_input():
