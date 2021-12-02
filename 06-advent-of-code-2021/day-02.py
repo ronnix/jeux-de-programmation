@@ -1,5 +1,6 @@
 # https://adventofcode.com/2021/day/2
 
+from functools import reduce
 
 SAMPLE_INPUT = """\
 forward 5
@@ -37,11 +38,11 @@ def movement(command, amount):
     raise ValueError
 
 
-def test_part2():
-    assert part2(parse(SAMPLE_INPUT)) == 900
+def test_part2_imperative():
+    assert part2_imperative(parse(SAMPLE_INPUT)) == 900
 
 
-def part2(steps):
+def part2_imperative(steps):
     x, y = integrate_movements_with_aim(steps)
     return x * y
 
@@ -66,6 +67,31 @@ def movement_with_aim(command, amount, aim):
     raise ValueError
 
 
+def test_part2_functional():
+    assert part2_functional(parse(SAMPLE_INPUT)) == 900
+
+
+def part2_functional(steps):
+    x, y, aim = foldl(next_state, (0, 0, 0), steps)
+    return x * y
+
+
+def foldl(function, initializer, iterable):  # Haskell-like fold left
+    return reduce(function, iterable, initializer)
+
+
+def next_state(state, step):
+    x, y, aim = state
+    command, amount = step
+    if command == "forward":
+        return (x + amount, y + aim * amount, aim)
+    if command == "down":
+        return (x, y, aim + amount)
+    if command == "up":
+        return (x, y, aim - amount)
+    raise ValueError
+
+
 def read_input():
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -83,4 +109,5 @@ def parse_line(line):
 if __name__ == "__main__":
     steps = parse(read_input())
     print("Part 1:", part1(steps))
-    print("Part 2:", part2(steps))
+    print("Part 2 (imperative):", part2_imperative(steps))
+    print("Part 2 (functional):", part2_functional(steps))
