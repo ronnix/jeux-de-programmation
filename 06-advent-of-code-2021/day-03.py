@@ -31,7 +31,7 @@ def part1(numbers):
 
 
 def most_common_bits(numbers):
-    return [round(mean(column)) for column in zip(*numbers)]
+    return [round_digit_up(mean(column)) for column in zip(*numbers)]
 
 
 def to_number(digits):
@@ -40,6 +40,50 @@ def to_number(digits):
 
 def reverse_bits(digits):
     return [int(not digit) for digit in digits]
+
+
+def round_digit_up(value):
+    if 0 <= value < 0.5:
+        return 0
+    elif 0.5 <= value <= 1:
+        return 1
+    else:
+        raise ValueError
+
+
+# === Part 2 ===
+
+
+def test_part2():
+    numbers = parse(SAMPLE_INPUT)
+    assert find_oxygen_generator_rating(numbers) == 23
+    assert find_co2_scrubber_rating(numbers) == 10
+    assert part2(numbers) == 230
+
+
+def part2(numbers):
+    oxygen_generator_rating = find_oxygen_generator_rating(numbers)
+    co2_scrubber_rating = find_co2_scrubber_rating(numbers)
+    return oxygen_generator_rating * co2_scrubber_rating
+
+def find_oxygen_generator_rating(numbers):
+    return to_number(filter_numbers(numbers, func=most_common_bits))
+
+
+def find_co2_scrubber_rating(numbers):
+    return to_number(filter_numbers(numbers, func=least_common_bits))
+
+
+def least_common_bits(numbers):
+    return reverse_bits(most_common_bits(numbers))
+
+
+def filter_numbers(numbers, func, index=0):
+    criteria = func(numbers)
+    filtered = [number for number in numbers if number[index] == criteria[index]]
+    if len(filtered) == 1:
+        return filtered[0]
+    return filter_numbers(filtered, func=func, index=index + 1)
 
 
 # === Input parsing ===
@@ -61,3 +105,4 @@ def parse_line(line):
 if __name__ == "__main__":
     numbers = parse(read_input())
     print("Part 1:", part1(numbers))
+    print("Part 2:", part2(numbers))
