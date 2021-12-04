@@ -42,7 +42,7 @@ def test_parsing():
 
 def test_play():
     numbers, boards = parse(SAMPLE_INPUT)
-    last_number_called, winning_board = play(numbers, boards)
+    last_number_called, winning_board = next(play(numbers, boards))
     assert last_number_called == 24
     assert sum(winning_board.unmarked_numbers()) == 188
 
@@ -53,7 +53,7 @@ def test_part1():
 
 
 def part1(numbers, boards):
-    last_number_called, winning_board = play(numbers, boards)
+    last_number_called, winning_board = next(play(numbers, boards))
     return last_number_called * sum(winning_board.unmarked_numbers())
 
 
@@ -85,13 +85,28 @@ class Board:
         return [number for number in self.numbers if number not in self.marked]
 
 
-def play(numbers, boards) -> Tuple[int, Board]:
+def play(numbers: List[int], boards: List[Board]) -> Tuple[int, Board]:
+    already_won = []
     for number in numbers:
         for board in boards:
-            board.mark(number)
-            if board.wins():
-                return number, board
-    raise RuntimeError  # nobody wins
+            if not board in already_won:
+                board.mark(number)
+                if board.wins():
+                    yield number, board
+                    already_won.append(board)
+
+
+# === Part 2 ===
+
+def test_part2():
+    numbers, boards = parse(SAMPLE_INPUT)
+    assert part2(numbers, boards) == 1924
+
+
+def part2(numbers, boards):
+    win_order = list(play(numbers, boards))
+    last_number_called, winning_board = win_order[-1]
+    return last_number_called * sum(winning_board.unmarked_numbers())
 
 
 # === Input parsing ===
@@ -116,3 +131,4 @@ def parse_board(chunk: str) -> Board:
 if __name__ == "__main__":
     numbers, boards = parse(read_input())
     print("Part 1:", part1(numbers, boards))
+    print("Part 2:", part2(numbers, boards))
