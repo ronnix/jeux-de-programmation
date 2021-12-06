@@ -39,18 +39,13 @@ class Segment:
         return self.start.x == self.end.x
 
     def covered(self):
-        if self.is_horizontal():
-            x0 = min(self.start.x, self.end.x)
-            x1 = max(self.start.x, self.end.x)
-            for x in range(x0, x1 + 1):
-                yield Point(x, self.start.y)
-        elif self.is_vertical():
-            y0 = min(self.start.y, self.end.y)
-            y1 = max(self.start.y, self.end.y)
-            for y in range(y0, y1 + 1):
-                yield Point(self.start.x, y)
-        else:
-            raise RuntimeError
+        lx = self.end.x - self.start.x
+        ly = self.end.y - self.start.y
+        l = max(abs(lx), abs(ly))
+        dx = lx / l
+        dy = ly / l
+        for i in range(l + 1):
+            yield Point(self.start.x + i * dx, self.start.y + i * dy)
 
 
 def test_parsing():
@@ -72,12 +67,27 @@ def horizontal_or_vertical_segments(segments: List[Segment]) -> List[Segment]:
 
 
 def part1(segments: List[Segment]):
+    return count_overlapping_points(horizontal_or_vertical_segments(segments))
+
+
+def count_overlapping_points(segments: List[Segment]):
     counter = Counter()
-    for segment in horizontal_or_vertical_segments(segments):
+    for segment in segments:
         for point in segment.covered():
             counter[point] += 1
     points = {point for point, count in counter.items() if count >= 2}
     return len(points)
+
+
+# === Part 2 ===
+
+def test_part2():
+    segments = parse(SAMPLE_INPUT)
+    assert part2(segments) == 12
+
+
+def part2(segments):
+    return count_overlapping_points(segments)
 
 
 # === Input parsing ===
@@ -105,3 +115,4 @@ def parse_point(text: str) -> Point:
 if __name__ == "__main__":
     segments = parse(read_input())
     print("Part 1:", part1(segments))
+    print("Part 2:", part2(segments))
