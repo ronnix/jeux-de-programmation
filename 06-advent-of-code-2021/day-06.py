@@ -1,5 +1,6 @@
 # https://adventofcode.com/2021/day/6
 
+from functools import lru_cache
 from typing import List
 
 
@@ -42,8 +43,40 @@ def test_part1():
     assert part1(parse(SAMPLE_INPUT)) == 5934
 
 
-def part1(states) -> int:
+def part1(states: List[int]) -> int:
     return len(generations(states, 80))
+
+
+# === Part 2 ===
+
+# The naive implementation in part 1 is now too slow,
+# so it’s time to use some dynamic programming!
+
+
+@lru_cache
+def population_size(state: int, generations: int) -> int:
+    if generations == 0:
+        return 1
+    else:
+        if state == 0:
+            return population_size(6, generations - 1) + population_size(
+                8, generations - 1
+            )
+        else:
+            return population_size(state - 1, generations - 1)
+
+
+def test_population_size():
+    assert population_size(state=0, generations=0) == 1
+    assert population_size(state=0, generations=1) == 2
+
+
+def test_part2():
+    assert part2(parse(SAMPLE_INPUT)) == 26984457539
+
+
+def part2(states: List[int]) -> int:
+    return sum(population_size(state, 256) for state in states)
 
 
 # === Input parsing ===
@@ -61,3 +94,4 @@ def parse(text: str) -> List[int]:
 if __name__ == "__main__":
     states = parse(read_input())
     print("Part 1:", part1(states))
+    print("Part 2:", part2(states))
