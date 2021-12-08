@@ -1,3 +1,4 @@
 black
 more-itertools
 pytest
+python-constraint
