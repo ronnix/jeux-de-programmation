@@ -1,4 +1,5 @@
 black
 more-itertools
+numpy
 pytest
 python-constraint

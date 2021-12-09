@@ -16,6 +16,8 @@ more-itertools==8.12.0
     # via -r requirements.in
 mypy-extensions==0.4.3
     # via black
+numpy==1.21.4
+    # via -r requirements.in
 packaging==21.3
     # via pytest
 pathspec==0.9.0
