@@ -1,8 +1,10 @@
 # https://adventofcode.com/2021/day/10
 
 from dataclasses import dataclass
+from functools import reduce
 from typing import List
 
+import pytest
 
 SAMPLE_INPUT = """\
 [({(<(())[]>[[{[]{<()<>>
@@ -20,9 +22,15 @@ SAMPLE_INPUT = """\
 # === Part 1 ===
 
 
-def test_corrupted_lines() -> None:
-    parsed_lines = [(line, parse_line(line)) for line in SAMPLE_INPUT.splitlines()]
-    corrupted_lines = [line for line, result in parsed_lines if result.corrupted]
+@pytest.fixture
+def lines() -> List[str]:
+    return SAMPLE_INPUT.splitlines()
+
+
+def test_corrupted_lines(lines: List[str]) -> None:
+    corrupted_lines = [
+        line for line, result in zip(lines, parse_lines(lines)) if result.corrupted
+    ]
     assert corrupted_lines == [
         "{([(<{}[<>[]}>{[]{[(<()>",
         "[[<[([]))<([[{}[[()]]]",
@@ -32,17 +40,29 @@ def test_corrupted_lines() -> None:
     ]
 
 
-def test_part1() -> None:
-    syntax_error_score = part1(SAMPLE_INPUT.splitlines())
-    assert syntax_error_score == 26397
+@dataclass
+class ParseResult:
+    corrupted: bool
+    message: str = ""
+    missing: str = ""
+    score: int = 0
+
+
+def parse_lines(lines: List[str]) -> List[ParseResult]:
+    return [parse_line(line) for line in lines]
+
+
+def test_syntax_error_score(lines: List[str]) -> None:
+    assert syntax_error_score(lines) == 26397
+
+
+def syntax_error_score(lines: List[str]) -> int:
+    results = parse_lines(lines)
+    return sum(result.score for result in results if result.corrupted)
 
 
 def part1(lines: List[str]) -> int:
     return syntax_error_score(lines)
-
-
-def syntax_error_score(lines: List[str]) -> int:
-    return sum(parse_line(line).score for line in lines)
 
 
 CLOSING = {
@@ -61,11 +81,12 @@ ERROR_SCORE = {
 }
 
 
-@dataclass
-class ParseResult:
-    corrupted: bool
-    message: str = ""
-    score: int = 0
+COMPLETION_SCORE = {
+    ")": 1,
+    "]": 2,
+    "}": 3,
+    ">": 4,
+}
 
 
 def parse_line(line: str) -> ParseResult:
@@ -81,7 +102,34 @@ def parse_line(line: str) -> ParseResult:
                     message=f"Expected {expected}, but found {char} instead.",
                     score=ERROR_SCORE[char],
                 )
-    return ParseResult(corrupted=False)
+    missing = "".join(CLOSING[char] for char in reversed(stack))
+    score = reduce(lambda acc, c: acc * 5 + COMPLETION_SCORE[c], missing, 0)
+    return ParseResult(corrupted=False, missing=missing, score=score)
+
+
+# === Part 2 ===
+
+
+def test_missing_closing_chars(lines: List[str]) -> None:
+    results = (parse_line(line) for line in lines)
+    missing = [result.missing for result in results if not result.corrupted]
+    assert missing == [r"}}]])})]", r")}>]})", r"}}>}>))))", r"]]}}]}]}>", r"])}>"]
+
+
+def test_completion_scores(lines: List[str]) -> None:
+    assert middle(completion_scores(lines)) == 288957
+
+
+def middle(scores: List[int]) -> int:
+    return sorted(scores)[len(scores) // 2]
+
+
+def completion_scores(lines: List[str]) -> List[int]:
+    return [result.score for result in parse_lines(lines) if not result.corrupted]
+
+
+def part2(lines: List[str]) -> int:
+    return middle(completion_scores(lines))
 
 
 # === Input parsing ===
@@ -93,5 +141,6 @@ def read_input() -> str:
 
 
 if __name__ == "__main__":
-    lines = read_input().splitlines()
-    print("Part 1:", part1(lines))
+    lines_ = read_input().splitlines()
+    print("Part 1:", part1(lines_))
+    print("Part 2:", part2(lines_))
