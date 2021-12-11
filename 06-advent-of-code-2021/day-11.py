@@ -1,5 +1,6 @@
 # https://adventofcode.com/2021/day/11
 
+import itertools
 from textwrap import dedent
 from typing import Iterator, List, Tuple
 
@@ -135,6 +136,26 @@ def part1(grid: Grid) -> int:
     return count_flashes(grid, 100)
 
 
+# === Part 2 ===
+
+
+def test_how_many_steps_before_all_octopuses_flash() -> None:
+    grid = parse(SAMPLE_INPUT)
+    assert how_many_steps_before_all_octopuses_flash(grid) == 195
+
+
+def how_many_steps_before_all_octopuses_flash(grid: Grid) -> int:
+    for n in itertools.count(1):
+        nb_flashed = grid.step()
+        if nb_flashed == 100:
+            return n
+    raise RuntimeError  # never happens
+
+
+def part2(grid: Grid) -> int:
+    return how_many_steps_before_all_octopuses_flash(grid)
+
+
 # === Input parsing ===
 
 
@@ -148,5 +169,5 @@ def parse(text: str) -> Grid:
 
 
 if __name__ == "__main__":
-    grid = parse(read_input())
-    print("Part 1:", part1(grid))
+    print("Part 1:", part1(parse(read_input())))
+    print("Part 2:", part2(parse(read_input())))
