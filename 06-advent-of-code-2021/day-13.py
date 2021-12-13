@@ -44,28 +44,29 @@ def test_parsing() -> None:
 
 def test_fold() -> None:
     before, _ = parse(SAMPLE_INPUT)
-    print_grid(set(before))
+    print(as_string(set(before)))
 
     after_first = fold_horizontally(set(before), 7)
-    print_grid(set(after_first))
+    print(as_string(set(after_first)))
     assert len(after_first) == 17
 
     after_second = fold_vertically(set(after_first), 5)
-    print_grid(set(after_second))
+    print(as_string(set(after_second)))
     assert len(after_second) == 16
 
 
-def print_grid(dots: Set[Point]) -> None:
+def as_string(dots: Set[Point]) -> str:
+    res = "\n"
     max_x = max(x for x, _ in dots)
     max_y = max(y for _, y in dots)
     for y in range(max_y + 1):
         for x in range(max_x + 1):
             if (x, y) in dots:
-                print("#", end="")
+                res += "#"
             else:
-                print(".", end="")
-        print()
-    print()
+                res += "."
+        res += "\n"
+    return res
 
 
 def fold(dots: Set[Point], folds: List[Fold]) -> Set[Point]:
@@ -93,6 +94,13 @@ def test_part1() -> None:
 
 def part1(dots: List[Point], folds: List[Fold]) -> int:
     return len(fold(set(dots), folds[:1]))
+
+
+# === Part 2 ===
+
+
+def part2(dots: List[Point], folds: List[Fold]) -> str:
+    return as_string(fold(set(dots), folds))
 
 
 # === Input parsing ===
@@ -123,3 +131,4 @@ def parse_fold(line: str) -> Fold:
 
 if __name__ == "__main__":
     print("Part 1:", part1(*parse(read_input())))
+    print("Part 2:", part2(*parse(read_input())))

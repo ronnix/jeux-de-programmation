@@ -71,7 +71,7 @@ def part1(graph: Graph) -> int:
     return len(list(graph.paths(is_valid_part1)))
 
 
-# === Input parsing ===
+# === Part 2 ===
 
 
 def is_valid_part2(path: Path):
