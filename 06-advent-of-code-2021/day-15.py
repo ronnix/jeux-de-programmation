@@ -203,7 +203,17 @@ def parse(text: str) -> Grid:
     return [[int(char) for char in line] for line in text.splitlines()]
 
 
+@contextmanager
+def timer() -> Iterator:
+    start = monotonic()
+    yield
+    duration = monotonic() - start
+    print(f"{duration:0.1f}s")
+
+
 if __name__ == "__main__":
     grid = parse(read_input())
-    print("Part 1:", part1(grid))
-    print("Part 2:", part2(grid))
+    with timer():
+        print("Part 1:", part1(grid))
+    with timer():
+        print("Part 2:", part2(grid))
