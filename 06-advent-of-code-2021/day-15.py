@@ -1,6 +1,9 @@
 # https://adventofcode.com/2021/day/15
 
+import sys
 from collections import defaultdict
+from contextlib import contextmanager
+from time import monotonic
 
 from typing import Dict, Iterator, List, Set, Tuple
 
@@ -38,9 +41,11 @@ class WeightedGraph:
         self.risks = risks
         self.nodes = {(x, y) for x in range(self.width) for y in range(self.height)}
         self.edges = {
-            (source, destination): risks[destination[1]][destination[0]]
+            source: {
+                (destination, risks[destination[1]][destination[0]])
+                for destination in self.neighbors(source)
+            }
             for source in self.nodes
-            for destination in self.neighbors(source)
         }
 
     def neighbors(self, point: Point) -> Iterator[Point]:
@@ -64,15 +69,15 @@ class WeightedGraph:
         Q: Set[Point] = self.nodes.copy()
         prev: Dict[Point, Point] = {}
 
-        dist: Dict[Point, int] = defaultdict(lambda: 99999999)
+        dist: Dict[Point, int] = defaultdict(lambda: sys.maxsize)
         dist[source] = 0
 
         while Q:
-            u = sorted(Q, key=lambda x: dist[x])[0]
-            Q -= {u}
-            for v in self.neighbors(u):
+            u = min(Q, key=lambda x: dist[x])
+            Q.remove(u)
+            for v, risk in self.edges[u]:
                 if v in Q:
-                    alt = dist[u] + self.edges[(u, v)]
+                    alt = dist[u] + risk
                     if alt < dist[v]:
                         dist[v] = alt
                         prev[v] = u
@@ -94,7 +99,7 @@ def test_parsing() -> None:
 def test_graph():
     graph = WeightedGraph(parse(SAMPLE_INPUT))
     assert len(graph.nodes) == 100
-    assert graph.edges[(4, 1), (4, 2)] == 5
+    assert graph.edges[(4, 1)] == {((3, 1), 1), ((4, 0), 7), ((4, 2), 5), ((5, 1), 7)}
     assert graph.lowest_risk_path((0, 0), (9, 9)) == [
         (0, 0),
         (0, 1),
