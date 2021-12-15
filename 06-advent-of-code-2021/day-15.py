@@ -129,6 +129,63 @@ def part1(grid: Grid) -> int:
     return graph.total_path_risk(path)
 
 
+# === Part 2 ===
+
+
+def test_part2() -> None:
+    grid = parse(SAMPLE_INPUT)
+    assert part2(grid) == 315
+
+
+def part2(grid: Grid) -> int:
+    return part1(enlarge(grid, 5))
+
+
+def test_enlarge() -> None:
+    grid = parse(SAMPLE_INPUT)
+
+    assert enlarge(grid, 1) == grid
+
+    res = enlarge(grid, 2)
+    assert res == parse(
+        """\
+11637517422274862853
+13813736722492484783
+21365113283247622439
+36949315694715142671
+74634171118574528222
+13191281372421239248
+13599124212461123532
+31254216394236532741
+12931385212314249632
+23119445813422155692
+22748628533385973964
+24924847833513595894
+32476224394358733541
+47151426715826253782
+85745282229685639333
+24212392483532341359
+24611235323572234643
+42365327415347643852
+23142496323425351743
+34221556924533266713"""
+    )
+
+
+def enlarge(grid: Grid, times: int) -> Grid:
+    height = len(grid)
+    width = len(grid[0])
+    return [
+        [
+            (((grid[y % height][x % width] - 1) + xstep + ystep) % 9) + 1
+            for xstep in range(times)
+            for x in range(width)
+        ]
+        for ystep in range(times)
+        for y in range(height)
+    ]
+
+
 # === Input parsing ===
 
 
@@ -144,3 +201,4 @@ def parse(text: str) -> Grid:
 if __name__ == "__main__":
     grid = parse(read_input())
     print("Part 1:", part1(grid))
+    print("Part 2:", part2(grid))
