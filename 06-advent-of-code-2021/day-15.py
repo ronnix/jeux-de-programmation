@@ -1,11 +1,12 @@
 # https://adventofcode.com/2021/day/15
 
+import heapq
 import sys
 from collections import defaultdict
 from contextlib import contextmanager
 from time import monotonic
 
-from typing import Dict, Iterator, List, Set, Tuple
+from typing import Dict, Iterator, List, Tuple
 
 
 SAMPLE_INPUT = """\
@@ -60,34 +61,23 @@ class WeightedGraph:
                 continue
             yield nx, ny
 
-    def total_path_risk(self, path: Path) -> int:
-        return sum(self.risks[y][x] for x, y in path[1:])
-
-    def lowest_risk_path(self, source: Point, goal: Point) -> Path:
+    def lowest_risk(self, source: Point, goal: Point) -> int:
         # https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 
-        Q: Set[Point] = self.nodes.copy()
-        prev: Dict[Point, Point] = {}
+        Q: List[Tuple[int, Point]] = [(0, source)]
 
         dist: Dict[Point, int] = defaultdict(lambda: sys.maxsize)
         dist[source] = 0
 
         while Q:
-            u = min(Q, key=lambda x: dist[x])
-            Q.remove(u)
+            risk, u = heapq.heappop(Q)
             for v, risk in self.edges[u]:
-                if v in Q:
-                    alt = dist[u] + risk
-                    if alt < dist[v]:
-                        dist[v] = alt
-                        prev[v] = u
+                alt = dist[u] + risk
+                if alt < dist[v]:
+                    dist[v] = alt
+                    heapq.heappush(Q, (dist[v], v))
 
-        path: Path = [goal]
-        node = goal
-        while node in prev:
-            node = prev[node]
-            path.insert(0, node)
-        return path
+        return dist[goal]
 
 
 def test_parsing() -> None:
@@ -100,27 +90,7 @@ def test_graph():
     graph = WeightedGraph(parse(SAMPLE_INPUT))
     assert len(graph.nodes) == 100
     assert graph.edges[(4, 1)] == {((3, 1), 1), ((4, 0), 7), ((4, 2), 5), ((5, 1), 7)}
-    assert graph.lowest_risk_path((0, 0), (9, 9)) == [
-        (0, 0),
-        (0, 1),
-        (0, 2),
-        (1, 2),
-        (2, 2),
-        (3, 2),
-        (4, 2),
-        (5, 2),
-        (6, 2),
-        (6, 3),
-        (7, 3),
-        (7, 4),
-        (8, 4),
-        (8, 5),
-        (8, 6),
-        (8, 7),
-        (8, 8),
-        (9, 8),
-        (9, 9),
-    ]
+    assert graph.lowest_risk((0, 0), (9, 9)) == 40
 
 
 def test_part1() -> None:
@@ -130,8 +100,7 @@ def test_part1() -> None:
 
 def part1(grid: Grid) -> int:
     graph = WeightedGraph(grid)
-    path = graph.lowest_risk_path((0, 0), (graph.width - 1, graph.height - 1))
-    return graph.total_path_risk(path)
+    return graph.lowest_risk((0, 0), (graph.width - 1, graph.height - 1))
 
 
 # === Part 2 ===
