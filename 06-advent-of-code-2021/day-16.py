@@ -1,9 +1,9 @@
 # https://adventofcode.com/2021/day/16
 
-from contextlib import contextmanager
 from dataclasses import dataclass
-from time import monotonic
-from typing import Iterator, List
+from functools import reduce
+from typing import Iterable, Iterator, List
+import operator
 
 from bitstring import BitStream
 import pytest
@@ -17,12 +17,21 @@ class Packet:
     version: int
 
     def sum_versions(self) -> int:
-        return self.version
+        raise NotImplementedError
+
+    def evaluate(self) -> int:
+        raise NotImplementedError
 
 
 @dataclass
 class Value(Packet):
     value: int
+
+    def sum_versions(self) -> int:
+        return self.version
+
+    def evaluate(self) -> int:
+        return self.value
 
 
 @dataclass
@@ -32,6 +41,35 @@ class Operator(Packet):
 
     def sum_versions(self) -> int:
         return self.version + sum(s.sum_versions() for s in self.sub_packets)
+
+    def evaluate(self) -> int:
+        match self.type_:
+            case 0:
+                return sum(s.evaluate() for s in self.sub_packets)
+            case 1:
+                return product(s.evaluate() for s in self.sub_packets)
+            case 2:
+                return min(s.evaluate() for s in self.sub_packets)
+            case 3:
+                return max(s.evaluate() for s in self.sub_packets)
+            case 5:
+                first = self.sub_packets[0].evaluate()
+                second = self.sub_packets[1].evaluate()
+                return int(first > second)
+            case 6:
+                first = self.sub_packets[0].evaluate()
+                second = self.sub_packets[1].evaluate()
+                return int(first < second)
+            case 7:
+                first = self.sub_packets[0].evaluate()
+                second = self.sub_packets[1].evaluate()
+                return int(first == second)
+            case _:
+                raise NotImplementedError
+
+
+def product(values: Iterable[int]) -> int:
+    return reduce(operator.mul, values, 1)
 
 
 def test_parse_value():
@@ -115,6 +153,31 @@ def part1(stream: str) -> int:
     return parse_packet(stream).sum_versions()
 
 
+# === Part 2 ===
+
+
+@pytest.mark.parametrize(
+    "packet,result",
+    [
+        ("C200B40A82", 3),
+        ("04005AC33890", 54),
+        ("880086C3E88112", 7),
+        ("CE00C43D881120", 9),
+        ("D8005AC2A8F0", 1),
+        ("F600BC2D8F", 0),
+        ("9C005AC2F8F0", 0),
+        ("9C0141080250320F1802104A08", 1),
+    ],
+)
+def test_evaluate(packet, result):
+    stream = parse(packet)
+    assert parse_packet(stream).evaluate() == result
+
+
+def part2(stream: str) -> int:
+    return parse_packet(stream).evaluate()
+
+
 # === Input parsing ===
 
 
@@ -127,15 +190,6 @@ def parse(text: str) -> BitStream:
     return BitStream("0x" + text)
 
 
-@contextmanager
-def timer() -> Iterator:
-    start = monotonic()
-    yield
-    duration = monotonic() - start
-    print(f"{duration:0.1f}s")
-
-
 if __name__ == "__main__":
-    stream = parse(read_input())
-    with timer():
-        print("Part 1:", part1(stream))
+    print("Part 1:", part1(parse(read_input())))
+    print("Part 2:", part2(parse(read_input())))
