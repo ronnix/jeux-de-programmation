@@ -6,6 +6,8 @@
 #
 attrs==21.2.0
     # via pytest
+bitstring==3.1.9
+    # via -r requirements.in
 black==21.11b1
     # via -r requirements.in
 click==8.0.3
