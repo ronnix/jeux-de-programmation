@@ -1,0 +1,4 @@
+more-itertools
+pip-tools
+pytest
+pytest-watch
