@@ -29,14 +29,14 @@ def test_part1():
 
 
 def part1(text):
-    return sum_n_largest(elf_weights(text), 1)
+    return sum_n_largest(elf_calories(text), 1)
 
 
 def sum_n_largest(values, n):
     return sum(islice(sorted(values))[-n:])
 
 
-def elf_weights(text):
+def elf_calories(text):
     lines = text.splitlines()
     return (
         sum(int(line) for line in paragraph)
@@ -52,7 +52,7 @@ def test_part2():
 
 
 def part2(text):
-    return sum_n_largest(elf_weights(text), 3)
+    return sum_n_largest(elf_calories(text), 3)
 
 
 def read_puzzle_input():
