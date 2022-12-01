@@ -1,5 +1,6 @@
 # https://adventofcode.com/2022/day/1
 
+from itertools import islice
 from more_itertools import split_at
 
 
@@ -29,11 +30,30 @@ def test_part1():
 
 
 def part1(text):
+    return sum_n_largest(elf_weights(text), 1)
+
+
+def sum_n_largest(values, n):
+    return sum(islice(sorted(values, reverse=True), 0, n))
+
+
+def elf_weights(text):
     lines = text.splitlines()
-    return max(
+    return (
         sum(int(line) for line in paragraph)
         for paragraph in split_at(lines, lambda line: line == "")
     )
+
+
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 45000
+
+
+def part2(text):
+    return sum_n_largest(elf_weights(text), 3)
 
 
 def read_puzzle_input():
@@ -44,3 +64,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
