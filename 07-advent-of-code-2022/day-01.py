@@ -1,6 +1,6 @@
 # https://adventofcode.com/2022/day/1
 
-from more_itertools import islice_extended as islice, split_at
+from more_itertools import split_at
 
 
 EXAMPLE_INPUT = """\
@@ -33,7 +33,7 @@ def part1(text):
 
 
 def sum_n_largest(values, n):
-    return sum(islice(sorted(values))[-n:])
+    return sum(sorted(values)[-n:])
 
 
 def elf_calories(text):
