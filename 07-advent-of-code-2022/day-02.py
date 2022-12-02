@@ -36,16 +36,10 @@ SHAPE_POINTS = {
     "Scissors": 3,
 }
 
-OUTCOME = {
-    ("Rock", "Scissors"): "win",
-    ("Scissors", "Paper"): "win",
-    ("Paper", "Rock"): "win",
-    ("Rock", "Rock"): "draw",
-    ("Paper", "Paper"): "draw",
-    ("Scissors", "Scissors"): "draw",
-    ("Scissors", "Rock"): "lose",
-    ("Paper", "Scissors"): "lose",
-    ("Rock", "Paper"): "lose",
+BEATS = {
+    "Rock": "Scissors",
+    "Scissors": "Paper",
+    "Paper": "Rock",
 }
 
 OUTCOME_POINTS = {
@@ -61,12 +55,18 @@ def round_score(line):
     their_shape = THEIR_SHAPES[their_move]
     my_shape = MY_SHAPES[my_move]
 
-    outcome = OUTCOME[(my_shape, their_shape)]
-
     shape_points = SHAPE_POINTS[my_shape]
-    outcome_points = OUTCOME_POINTS[outcome]
+    outcome_points = OUTCOME_POINTS[outcome(my_shape, their_shape)]
 
     return shape_points + outcome_points
+
+
+def outcome(my_shape, their_shape):
+    if BEATS[my_shape] == their_shape:
+        return "win"
+    if BEATS[their_shape] == my_shape:
+        return "lose"
+    return "draw"
 
 
 def read_puzzle_input():
