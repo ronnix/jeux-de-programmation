@@ -15,7 +15,7 @@ def test_part1():
 
 
 def part1(text):
-    return sum(round_score(round) for round in text.splitlines())
+    return sum(line_score_part1(line) for line in text.splitlines())
 
 
 THEIR_SHAPES = {
@@ -42,6 +42,8 @@ BEATS = {
     "Paper": "Rock",
 }
 
+LOSES_TO = {value: key for key, value in BEATS.items()}
+
 OUTCOME_POINTS = {
     "lose": 0,
     "draw": 3,
@@ -49,12 +51,12 @@ OUTCOME_POINTS = {
 }
 
 
-def round_score(line):
+def line_score_part1(line):
     their_move, my_move = line.split()
+    return round_score(THEIR_SHAPES[their_move], MY_SHAPES[my_move])
 
-    their_shape = THEIR_SHAPES[their_move]
-    my_shape = MY_SHAPES[my_move]
 
+def round_score(their_shape, my_shape):
     shape_points = SHAPE_POINTS[my_shape]
     outcome_points = OUTCOME_POINTS[outcome(my_shape, their_shape)]
 
@@ -69,6 +71,33 @@ def outcome(my_shape, their_shape):
     return "draw"
 
 
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 12
+
+
+def part2(text):
+    return sum(line_score_part2(line) for line in text.splitlines())
+
+
+def line_score_part2(line):
+    their_move, desired_outcome = line.split()
+    their_shape = THEIR_SHAPES[their_move]
+    my_shape = shape_to_play(their_shape, desired_outcome)
+    return round_score(their_shape, my_shape)
+
+
+def shape_to_play(their_shape, desired_outcome):
+    if desired_outcome == "X":  # lose
+        return BEATS[their_shape]
+    if desired_outcome == "Y":  # draw
+        return their_shape
+    if desired_outcome == "Z":  # win
+        return LOSES_TO[their_shape]
+
+
 def read_puzzle_input():
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -77,3 +106,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 1:", part2(text))
