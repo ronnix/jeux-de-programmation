@@ -1,5 +1,8 @@
 # https://adventofcode.com/2022/day/2
 
+from enum import Enum
+
+
 EXAMPLE_INPUT = """\
 A Y
 B X
@@ -8,6 +11,18 @@ C Z
 
 
 # === Part 1 ===
+
+
+class Shape(Enum):
+    ROCK = 1
+    PAPER = 2
+    SCISSORS = 3
+
+
+class Outcome(Enum):
+    LOSE = 0
+    DRAW = 3
+    WIN = 6
 
 
 def test_part1():
@@ -19,36 +34,24 @@ def part1(text):
 
 
 THEIR_SHAPES = {
-    "A": "Rock",
-    "B": "Paper",
-    "C": "Scissors",
+    "A": Shape.ROCK,
+    "B": Shape.PAPER,
+    "C": Shape.SCISSORS,
 }
 
 MY_SHAPES = {
-    "X": "Rock",
-    "Y": "Paper",
-    "Z": "Scissors",
-}
-
-SHAPE_POINTS = {
-    "Rock": 1,
-    "Paper": 2,
-    "Scissors": 3,
+    "X": Shape.ROCK,
+    "Y": Shape.PAPER,
+    "Z": Shape.SCISSORS,
 }
 
 BEATS = {
-    "Rock": "Scissors",
-    "Scissors": "Paper",
-    "Paper": "Rock",
+    Shape.ROCK: Shape.SCISSORS,
+    Shape.SCISSORS: Shape.PAPER,
+    Shape.PAPER: Shape.ROCK,
 }
 
 LOSES_TO = {value: key for key, value in BEATS.items()}
-
-OUTCOME_POINTS = {
-    "lose": 0,
-    "draw": 3,
-    "win": 6,
-}
 
 
 def line_score_part1(line):
@@ -57,18 +60,15 @@ def line_score_part1(line):
 
 
 def round_score(their_shape, my_shape):
-    shape_points = SHAPE_POINTS[my_shape]
-    outcome_points = OUTCOME_POINTS[outcome(my_shape, their_shape)]
-
-    return shape_points + outcome_points
+    return my_shape.value + outcome(my_shape, their_shape).value
 
 
 def outcome(my_shape, their_shape):
     if BEATS[my_shape] == their_shape:
-        return "win"
+        return Outcome.WIN
     if BEATS[their_shape] == my_shape:
-        return "lose"
-    return "draw"
+        return Outcome.LOSE
+    return Outcome.DRAW
 
 
 # === Part 2 ===
