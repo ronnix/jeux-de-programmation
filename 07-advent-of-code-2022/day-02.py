@@ -106,4 +106,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
-    print("Part 1:", part2(text))
+    print("Part 2:", part2(text))
