@@ -1,6 +1,8 @@
 # https://adventofcode.com/2022/day/3
 
-from more_itertools import divide
+from typing import List
+
+from more_itertools import chunked, divide
 
 
 EXAMPLE_INPUT = """\
@@ -39,6 +41,24 @@ def priority(letter: str) -> int:
     raise ValueError
 
 
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 70
+
+
+def part2(text: str) -> int:
+    return sum(priority(badge_item(group)) for group in chunked(text.splitlines(), 3))
+
+
+def badge_item(lines: List[str]) -> str:
+    first, second, third = (set(line) for line in lines)
+    common = first.intersection(second).intersection(third)
+    assert len(common) == 1
+    return common.pop()
+
+
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -49,3 +69,4 @@ if __name__ == "__main__":
     for line in text.splitlines():
         assert len(line) % 2 == 0
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
