@@ -39,11 +39,7 @@ def intersection(sets: Iterable[Set]) -> Set:
 
 
 def priority(letter: str) -> int:
-    if "a" <= letter <= "z":
-        return ord(letter) - 96
-    if "A" <= letter <= "Z":
-        return ord(letter) - 38
-    raise ValueError
+    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".find(letter) + 1
 
 
 # === Part 2 ===
