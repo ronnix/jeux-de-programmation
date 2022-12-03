@@ -1,6 +1,8 @@
 # https://adventofcode.com/2022/day/3
 
-from typing import List
+from functools import reduce
+from operator import and_
+from typing import Iterable, Set
 
 from more_itertools import chunked, divide
 
@@ -23,14 +25,17 @@ def test_part1():
 
 
 def part1(text: str) -> int:
-    return sum(priority(common_item(line)) for line in text.splitlines())
+    return sum(priority(common_item(divide(2, line))) for line in text.splitlines())
 
 
-def common_item(line: str) -> str:
-    first, second = (set(half) for half in divide(2, line))
-    common = first.intersection(second)
+def common_item(strings: Iterable[str]) -> str:
+    common = intersection(set(s) for s in strings)
     assert len(common) == 1
     return common.pop()
+
+
+def intersection(sets: Iterable[Set]) -> Set:
+    return reduce(and_, sets)
 
 
 def priority(letter: str) -> int:
@@ -49,14 +54,7 @@ def test_part2():
 
 
 def part2(text: str) -> int:
-    return sum(priority(badge_item(group)) for group in chunked(text.splitlines(), 3))
-
-
-def badge_item(lines: List[str]) -> str:
-    first, second, third = (set(line) for line in lines)
-    common = first.intersection(second).intersection(third)
-    assert len(common) == 1
-    return common.pop()
+    return sum(priority(common_item(group)) for group in chunked(text.splitlines(), 3))
 
 
 def read_puzzle_input() -> str:
