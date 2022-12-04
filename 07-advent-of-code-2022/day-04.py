@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Iterable, List
+
 from more_itertools import quantify
 
 
@@ -23,13 +25,11 @@ def test_part1():
 
 
 def part1(text: str) -> int:
-    pairs = [line.split(",") for line in text.splitlines()]
-    return quantify(pairs, completely_overlap)
+    return quantify(range_pairs(text), completely_overlap)
 
 
-def completely_overlap(pair):
-    first, second = map(Range, pair)
-    return first.includes(second) or second.includes(first)
+def range_pairs(text: str) -> Iterable[Iterable[Range]]:
+    return (map(Range, line.split(",")) for line in text.splitlines())
 
 
 class Range:
@@ -45,6 +45,11 @@ class Range:
         )
 
 
+def completely_overlap(pair: Iterable[Range]) -> bool:
+    first, second = pair
+    return first.includes(second) or second.includes(first)
+
+
 # === Part 2 ===
 
 
@@ -53,12 +58,11 @@ def test_part2():
 
 
 def part2(text: str) -> int:
-    pairs = [line.split(",") for line in text.splitlines()]
-    return quantify(pairs, overlap)
+    return quantify(range_pairs(text), overlap)
 
 
-def overlap(pair):
-    first, second = map(Range, pair)
+def overlap(pair: Iterable[Range]) -> bool:
+    first, second = pair
     return first.overlaps_with(second)
 
 
