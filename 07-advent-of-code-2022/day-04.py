@@ -41,7 +41,7 @@ class Range:
 
     def overlaps_with(self, other: Range) -> bool:
         return (other.start <= self.start <= other.end) or (
-            other.start <= self.end <= other.end
+            self.start <= other.start <= self.end
         )
 
 
@@ -59,7 +59,7 @@ def part2(text: str) -> int:
 
 def overlap(pair):
     first, second = map(Range, pair)
-    return first.overlaps_with(second) or second.overlaps_with(first)
+    return first.overlaps_with(second)
 
 
 def read_puzzle_input() -> str:
