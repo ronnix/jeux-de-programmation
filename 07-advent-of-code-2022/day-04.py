@@ -39,6 +39,28 @@ class Range:
     def includes(self, other: Range) -> bool:
         return self.start <= other.start and self.end >= other.end
 
+    def overlaps_with(self, other: Range) -> bool:
+        return (other.start <= self.start <= other.end) or (
+            other.start <= self.end <= other.end
+        )
+
+
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 4
+
+
+def part2(text: str) -> int:
+    pairs = [line.split(",") for line in text.splitlines()]
+    return quantify(pairs, overlap)
+
+
+def overlap(pair):
+    first, second = map(Range, pair)
+    return first.overlaps_with(second) or second.overlaps_with(first)
+
 
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
@@ -48,3 +70,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
