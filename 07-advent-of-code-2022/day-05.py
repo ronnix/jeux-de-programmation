@@ -36,7 +36,7 @@ def part1(text: str) -> str:
 def rearrange_crates(crane_class: type, text: str) -> str:
     stacks_lines, move_lines = split_at(text.splitlines(), lambda line: line == "")
     crane = crane_class(stacks_lines)
-    crane.apply_moves(move_lines)
+    crane.apply_moves(Move.from_string(line) for line in move_lines)
     return crane.top_crates()
 
 
@@ -54,11 +54,13 @@ class CrateMover9000:
     def count_stacks(lines: List[str]) -> int:
         return (len(lines[0]) + 1) // 4
 
-    def apply_moves(self, move_lines: Iterable[str]) -> None:
-        for line in move_lines:
-            move = Move.from_string(line)
-            crates = self.pick_up_crates(move.source, move.nb)
-            self.stacks[move.dest].extend(crates)
+    def apply_moves(self, moves: Iterable[Move]) -> None:
+        for move in moves:
+            self.apply_move(move)
+
+    def apply_move(self, move: Move) -> None:
+        crates = self.pick_up_crates(move.source, move.nb)
+        self.stacks[move.dest].extend(crates)
 
     def pick_up_crates(self, source: int, nb: int) -> List[str]:
         # one by one
