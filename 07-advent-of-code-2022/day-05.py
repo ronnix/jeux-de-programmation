@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import List, NamedTuple
+from typing import Iterable, List, NamedTuple
 import re
 
 from more_itertools import split_at
@@ -29,6 +29,45 @@ def test_part1():
     assert part1(EXAMPLE_INPUT) == "CMZ"
 
 
+def part1(text: str) -> str:
+    return rearrange_crates(crane_class=CrateMover9000, text=text)
+
+
+def rearrange_crates(crane_class: type, text: str) -> str:
+    stacks_lines, move_lines = split_at(text.splitlines(), lambda line: line == "")
+    crane = crane_class(stacks_lines)
+    crane.apply_moves(move_lines)
+    return crane.top_crates()
+
+
+class CrateMover9000:
+    def __init__(self, lines: List[str]):
+        self.stacks = defaultdict(list)
+        nb_stacks = self.count_stacks(lines)
+        for line in lines[-2::-1]:
+            for i in range(nb_stacks):
+                char = line[i * 4 + 1]
+                if char != " ":
+                    self.stacks[i + 1].append(char)
+
+    @staticmethod
+    def count_stacks(lines: List[str]) -> int:
+        return (len(lines[0]) + 1) // 4
+
+    def apply_moves(self, move_lines: Iterable[str]) -> None:
+        for line in move_lines:
+            move = Move.from_string(line)
+            crates = self.pick_up_crates(move.source, move.nb)
+            self.stacks[move.dest].extend(crates)
+
+    def pick_up_crates(self, source: int, nb: int) -> List[str]:
+        # one by one
+        return [self.stacks[source].pop() for _ in range(nb)]
+
+    def top_crates(self) -> str:
+        return "".join(stack[-1] for stack in self.stacks.values())
+
+
 class Move(NamedTuple):
     nb: int
     source: int
@@ -48,41 +87,6 @@ class Move(NamedTuple):
         )
 
 
-def part1(text: str) -> str:
-    return move_crates(text)
-
-
-def move_crates(text: str, multiple_at_once=False) -> str:
-    stack_lines, move_lines = split_at(text.splitlines(), lambda line: line == "")
-    stacks = init_stacks(stack_lines)
-    apply_moves(stacks, move_lines, multiple_at_once)
-    return "".join(stack[-1] for stack in stacks.values())
-
-
-def init_stacks(lines):
-    stacks = defaultdict(list)
-    nb_stacks = count_stacks(lines)
-    for line in lines[-2::-1]:
-        for i in range(nb_stacks):
-            char = line[i * 4 + 1]
-            if char != " ":
-                stacks[i + 1].append(char)
-    return stacks
-
-
-def count_stacks(lines: List[str]) -> int:
-    return (len(lines[0]) + 1) // 4
-
-
-def apply_moves(stacks, move_lines, multiple_at_once):
-    for line in move_lines:
-        move = Move.from_string(line)
-        crates = [stacks[move.source].pop() for _ in range(move.nb)]
-        if multiple_at_once:
-            crates = reversed(crates)
-        stacks[move.dest].extend(crates)
-
-
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -96,7 +100,14 @@ def test_part2():
 
 
 def part2(text: str) -> str:
-    return move_crates(text, multiple_at_once=True)
+    return rearrange_crates(crane_class=CrateMover9001, text=text)
+
+
+class CrateMover9001(CrateMover9000):
+    def pick_up_crates(self, source: int, nb: int) -> List[str]:
+        # multiple at once
+        crates = super().pick_up_crates(source, nb)
+        return crates[::-1]  # reverse list
 
 
 if __name__ == "__main__":
