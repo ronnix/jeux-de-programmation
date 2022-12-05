@@ -1,5 +1,7 @@
 # https://adventofcode.com/2022/day/5
 
+from __future__ import annotations
+
 from collections import defaultdict
 from typing import List, NamedTuple
 import re
@@ -27,7 +29,23 @@ def test_part1():
     assert part1(EXAMPLE_INPUT) == "CMZ"
 
 
-MOVE_RE = re.compile(r"move (?P<count>\d+) from (?P<source>\d) to (?P<dest>\d)")
+class Move(NamedTuple):
+    nb: int
+    source: int
+    dest: int
+
+    MOVE_RE = re.compile(r"move (?P<nb>\d+) from (?P<source>\d) to (?P<dest>\d)")  # type: ignore
+
+    @classmethod
+    def from_string(cls, s: str) -> Move:
+        match = cls.MOVE_RE.match(s)
+        if match is None:
+            raise SyntaxError
+        return cls(  # type: ignore
+            nb=int(match.group("nb")),
+            source=int(match.group("source")),
+            dest=int(match.group("dest")),
+        )
 
 
 def part1(text: str) -> str:
@@ -58,14 +76,11 @@ def count_stacks(lines: List[str]) -> int:
 
 def apply_moves(stacks, move_lines, multiple_at_once):
     for line in move_lines:
-        match = MOVE_RE.match(line)
-        assert match is not None
-        source = int(match.group("source"))
-        dest = int(match.group("dest"))
-        crates = [stacks[source].pop() for _ in range(int(match.group("count")))]
+        move = Move.from_string(line)
+        crates = [stacks[move.source].pop() for _ in range(move.nb)]
         if multiple_at_once:
             crates = reversed(crates)
-        stacks[dest].extend(crates)
+        stacks[move.dest].extend(crates)
 
 
 def read_puzzle_input() -> str:
