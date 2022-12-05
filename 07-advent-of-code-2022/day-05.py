@@ -31,9 +31,13 @@ MOVE_RE = re.compile(r"move (?P<count>\d+) from (?P<source>\d) to (?P<dest>\d)")
 
 
 def part1(text: str) -> str:
+    return move_crates(text)
+
+
+def move_crates(text: str, multiple_at_once=False) -> str:
     stack_lines, move_lines = split_at(text.splitlines(), lambda line: line == "")
     stacks = init_stacks(stack_lines)
-    apply_moves(stacks, move_lines)
+    apply_moves(stacks, move_lines, multiple_at_once)
     return "".join(stack[-1] for stack in stacks.values())
 
 
@@ -52,15 +56,16 @@ def count_stacks(lines: List[str]) -> int:
     return (len(lines[0]) + 1) // 4
 
 
-def apply_moves(stacks, move_lines):
+def apply_moves(stacks, move_lines, multiple_at_once):
     for line in move_lines:
         match = MOVE_RE.match(line)
         assert match is not None
         source = int(match.group("source"))
         dest = int(match.group("dest"))
-        for _ in range(int(match.group("count"))):
-            crate = stacks[source].pop()
-            stacks[dest].append(crate)
+        crates = [stacks[source].pop() for _ in range(int(match.group("count")))]
+        if multiple_at_once:
+            crates = reversed(crates)
+        stacks[dest].extend(crates)
 
 
 def read_puzzle_input() -> str:
@@ -68,6 +73,18 @@ def read_puzzle_input() -> str:
         return f.read()
 
 
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == "MCD"
+
+
+def part2(text: str) -> str:
+    return move_crates(text, multiple_at_once=True)
+
+
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
