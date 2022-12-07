@@ -115,6 +115,31 @@ class Directory:
         for subdir in self.subdirs.values():
             yield from subdir.sizes_of_subdirs_at_most(n)
 
+    def sizes_of_subdirs_at_least(self, n):
+        if (size := self.size()) >= n:
+            yield size
+        for subdir in self.subdirs.values():
+            yield from subdir.sizes_of_subdirs_at_least(n)
+
+
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 24_933_642
+
+
+def part2(text: str) -> int:
+    shell = Shell()
+    shell.run(text.splitlines())
+
+    total_space = 70_000_000
+    used_space = shell.root.size()
+    available_space = total_space - used_space
+    need_to_free = 30_000_000 - available_space
+
+    return sorted(shell.root.sizes_of_subdirs_at_least(need_to_free))[0]
+
 
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
@@ -124,3 +149,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
