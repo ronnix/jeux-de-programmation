@@ -1,4 +1,5 @@
 more-itertools
+mypy
 pip-tools
 pytest
 pytest-watch

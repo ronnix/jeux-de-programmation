@@ -18,6 +18,10 @@ iniconfig==1.1.1
     # via pytest
 more-itertools==9.0.0
     # via -r requirements.in
+mypy==0.991
+    # via -r requirements.in
+mypy-extensions==0.4.3
+    # via mypy
 packaging==21.3
     # via
     #   build
@@ -36,6 +40,8 @@ pytest==7.2.0
     #   pytest-watch
 pytest-watch==4.2.0
     # via -r requirements.in
+typing-extensions==4.4.0
+    # via mypy
 watchdog==2.1.9
     # via pytest-watch
 wheel==0.38.4
