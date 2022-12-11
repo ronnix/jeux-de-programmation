@@ -141,6 +141,35 @@ def part1(text: str) -> int:
     return len(rope.visited_by_tail)
 
 
+# === Part 2 ===
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == 1
+
+
+LARGER_EXAMPLE = """\
+R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20
+"""
+
+
+def test_part2_larger_example():
+    assert part2(LARGER_EXAMPLE) == 36
+
+
+def part2(text: str) -> int:
+    rope = Rope(nb_knots=10)
+    rope.apply_motions(text.splitlines())
+    return len(rope.visited_by_tail)
+
+
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -149,3 +178,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text))
