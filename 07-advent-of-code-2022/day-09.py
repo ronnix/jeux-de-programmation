@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import NamedTuple, Set
+from typing import List, NamedTuple, Set
 
 import pytest
 
@@ -107,20 +107,31 @@ def test_follow(head, tail, expected):
 
 
 class Rope:
-    head: Position
-    tail: Position
+    knots: List[Position]
     visited_by_tail: Set[Position]
 
-    def __init__(self):
-        self.head = self.tail = Position(0, 0)
+    def __init__(self, nb_knots=2):
+        self.knots = [Position(0, 0)] * nb_knots
         self.visited_by_tail = {self.tail}
+
+    @property
+    def head(self):
+        return self.knots[0]
+
+    @property
+    def tail(self):
+        return self.knots[-1]
 
     def apply_motions(self, lines) -> None:
         for line in lines:
             motion = Motion.from_string(line)
             for _ in range(motion.steps):
-                self.head = self.head.move(motion.direction)
-                self.tail = self.tail.follow(self.head)
+                prev_knot = None
+                for i in range(len(self.knots)):
+                    if prev_knot is None:
+                        prev_knot = self.knots[i] = self.knots[i].move(motion.direction)
+                    else:
+                        prev_knot = self.knots[i] = self.knots[i].follow(prev_knot)
                 self.visited_by_tail.add(self.tail)
 
 
