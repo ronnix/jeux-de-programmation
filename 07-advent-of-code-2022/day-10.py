@@ -1,6 +1,6 @@
 # https://adventofcode.com/2022/day/10
 
-from typing import List
+from typing import Generator, List
 
 
 EXAMPLE_INPUT = """\
@@ -161,38 +161,40 @@ def test_part1():
 
 
 def part1(text: str) -> int:
-    cpu = CPU()
-    cpu.run(program=text.splitlines())
-    return cpu.sum_of_signal_strengths
+    cpu = CPU(program=text.splitlines())
+    sum_of_signal_strengths = 0
+    for elapsed_cycles, x in cpu.run():
+        if (elapsed_cycles - 20) % 40 == 0:
+            sum_of_signal_strengths += elapsed_cycles * x
+    return sum_of_signal_strengths
 
 
 Instruction = str
 
 
 class CPU:
-    def __init__(self):
+    def __init__(self, program: List[Instruction]):
+        self.program = program
+        self.elapsed_cycles = 0
         self.x = 1
-        self.cycle = 0
-        self.sum_of_signal_strengths = 0
 
-    def run(self, program: List[Instruction]) -> None:
-        for instruction in program:
-            self.run_inst(instruction)
+    def run(self) -> Generator:
+        for instruction in self.program:
+            yield from self.run_inst(instruction)
+        yield self.elapsed_cycles, self.x
 
-    def run_inst(self, instruction: Instruction) -> None:
+    def run_inst(self, instruction: Instruction) -> Generator:
         opcode, *args = instruction.split()
         match opcode:
             case "addx":
-                self.next_cycle()
-                self.next_cycle()
+                self.elapsed_cycles += 1
+                yield self.elapsed_cycles, self.x
+                self.elapsed_cycles += 1
+                yield self.elapsed_cycles, self.x
                 self.x += int(args[0])
             case "noop":
-                self.next_cycle()
-
-    def next_cycle(self):
-        self.cycle += 1
-        if (self.cycle - 20) % 40 == 0:
-            self.sum_of_signal_strengths += self.cycle * self.x
+                self.elapsed_cycles += 1
+                yield self.elapsed_cycles, self.x
 
 
 def read_puzzle_input() -> str:
