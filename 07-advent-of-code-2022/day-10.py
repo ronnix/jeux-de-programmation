@@ -1,5 +1,6 @@
 # https://adventofcode.com/2022/day/10
 
+from array import array
 from typing import Generator, List
 
 
@@ -197,6 +198,60 @@ class CPU:
                 yield self.elapsed_cycles, self.x
 
 
+# === Part 2 ===
+
+
+EXPECTED_OUTPUT = """\
+##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....\
+"""
+
+
+def test_part2():
+    assert part2(EXAMPLE_INPUT) == EXPECTED_OUTPUT
+
+
+def part2(text: str) -> str:
+    crt = CRT(cpu=CPU(program=text.splitlines()))
+    crt.run()
+    return crt.screen
+
+
+class CRT:
+    def __init__(self, cpu: CPU, width=40, height=6):
+        self.cpu = cpu
+        self.width = width
+        self.height = height
+        self.pixels = array("B", [0] * self.width * self.height)
+
+    def get_pixel(self, x, y):
+        if self.pixels[y * self.width + x]:
+            return "#"
+        return "."
+
+    def set_pixel(self, x, y, value=1):
+        self.pixels[y * self.width + x] = value
+
+    @property
+    def screen(self) -> str:
+        return "\n".join(
+            "".join(self.get_pixel(x, y) for x in range(self.width))
+            for y in range(self.height)
+        )
+
+    def run(self) -> None:
+        cpu_generator = self.cpu.run()
+        for y in range(self.height):
+            for x in range(self.width):
+                _, sprite_position = next(cpu_generator)
+                if (sprite_position - 1) <= x <= (sprite_position + 1):
+                    self.set_pixel(x, y)
+
+
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -205,3 +260,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     text = read_puzzle_input()
     print("Part 1:", part1(text))
+    print("Part 2:", part2(text), sep="\n")
