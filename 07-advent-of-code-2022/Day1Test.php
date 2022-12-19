@@ -21,8 +21,11 @@ const EXAMPLE_INPUT = "1000
 
 class Day1Test extends TestCase {
 
-	public function testExampleInput(): void {
+	public function testPart1(): void {
 		$this->assertEquals(24000, part1(EXAMPLE_INPUT));
+	}
+	public function testPart2(): void {
+		$this->assertEquals(45000, part2(EXAMPLE_INPUT));
 	}
 }
 
