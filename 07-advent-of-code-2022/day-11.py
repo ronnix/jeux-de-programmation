@@ -1,9 +1,13 @@
 # https://adventofcode.com/2022/day/11
 
 from collections import Counter, deque
-from typing import List
+from functools import reduce
+from typing import Iterable, List
 import logging
+import operator
 import re
+
+import pytest
 
 
 EXAMPLE_INPUT = """\
@@ -44,6 +48,10 @@ def test_part1():
     assert part1(EXAMPLE_INPUT) == 10605
 
 
+def product(values: Iterable[int]) -> int:
+    return reduce(operator.mul, values, 1)
+
+
 class Item:
     def __init__(self, worry_level: int):
         self.worry_level = worry_level
@@ -58,14 +66,17 @@ class Item:
 
     @property
     def worry_level(self) -> int:
-        return self._worry_level
+        return product(factor**count for factor, count in self._factors.items())
 
     @worry_level.setter
     def worry_level(self, value: int) -> None:
-        self._worry_level = value
+        self._factors = factorize(value)
 
     def is_divisible_by(self, divisor: int) -> bool:
-        return (self._worry_level % divisor) == 0
+        return self._factors[divisor] > 0
+
+    def decrease_worry_level(self) -> None:
+        self.worry_level //= 3
 
     def update_worry_level(self, operator: str, operand: str) -> None:
         if operator == "*":
@@ -76,6 +87,45 @@ class Item:
             self.worry_level *= operand_value
         else:
             self.worry_level += int(operand)
+
+
+def factorize(value: int) -> Counter:
+    result: Counter = Counter()
+    factor = 2
+    while factor <= value:
+        if value % factor == 0:
+            result[factor] += 1
+            value //= factor
+        else:
+            factor += 1
+    return result
+
+
+@pytest.mark.parametrize(
+    "value,factors",
+    [
+        (1, {}),
+        (2, {2: 1}),
+        (4, {2: 2}),
+        (10, {2: 1, 5: 1}),
+        (1501, {19: 1, 79: 1}),
+        (60, {2: 2, 3: 1, 5: 1}),
+        (500, {2: 2, 5: 3}),
+    ],
+)
+def test_factorize(value, factors):
+    assert factorize(value) == Counter(factors)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        60,
+        500,
+    ],
+)
+def test_item(value):
+    assert Item(value).worry_level == value
 
 
 def part1(text: str) -> int:
@@ -181,7 +231,7 @@ def total_number_of_times_each_monkey_inspects_items(
                 )
                 item.update_worry_level(monkey.operator, monkey.operand)
                 logging.debug(f"    Worry level is {monkey.operator} {monkey.operand} to {item}.")
-                item.worry_level //= 3
+                item.decrease_worry_level()
                 logging.debug(
                     f"    Monkey gets bored with item. Worry level is divided by 3 to {item}."
                 )
