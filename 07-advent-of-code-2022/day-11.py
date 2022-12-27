@@ -67,17 +67,15 @@ class Item:
     def is_divisible_by(self, divisor: int) -> bool:
         return (self._worry_level % divisor) == 0
 
-    def update_worry_level(self, operation: str) -> None:
-        mo = re.match(r"old (?P<op>[\*\+]) (?P<operand>old|\d+)", operation)
-        assert mo is not None
-        if mo.group("op") == "*":
-            if mo.group("operand") == "old":
-                operand = self.worry_level
+    def update_worry_level(self, operator: str, operand: str) -> None:
+        if operator == "*":
+            if operand == "old":
+                operand_value = self.worry_level
             else:
-                operand = int(mo.group("operand"))
-            self.worry_level *= operand
+                operand_value = int(operand)
+            self.worry_level *= operand_value
         else:
-            self.worry_level += int(mo.group("operand"))
+            self.worry_level += int(operand)
 
 
 def part1(text: str) -> int:
@@ -92,14 +90,16 @@ class Monkey:
         self,
         number: int,
         items: List[Item],
-        operation: str,
+        operator: str,
+        operand: str,
         divisor: int,
         dest_if_true: int,
         dest_if_false: int,
     ):
         self.number = number
         self.items = deque(items)
-        self.operation = operation
+        self.operator = operator
+        self.operand = operand
         self.divisor = divisor
         self.dest_if_true = dest_if_true
         self.dest_if_false = dest_if_false
@@ -112,8 +112,9 @@ class Monkey:
         mo = re.search(r"Starting items: (?P<items>.+?)\n", s)
         items = [Item(int(item)) for item in mo.group("items").split(", ")]
 
-        mo = re.search(r"Operation: new = (?P<operation>.+?)\n", s)
-        operation = mo.group("operation")
+        mo = re.search(r"Operation: new = old (?P<operator>[\+\*]) (?P<operand>old|\d+)\n", s)
+        operator = mo.group("operator")
+        operand = mo.group("operand")
 
         mo = re.search(r"Test: divisible by (?P<divisor>.+?)\n", s)
         divisor = int(mo.group("divisor"))
@@ -127,7 +128,8 @@ class Monkey:
         return cls(
             number=number,
             items=items,
-            operation=operation,
+            operator=operator,
+            operand=operand,
             divisor=divisor,
             dest_if_true=dest_if_true,
             dest_if_false=dest_if_false,
@@ -150,7 +152,8 @@ def test_parse_monkey():
     monkey = Monkey.from_string(s)
     assert monkey.number == 0
     assert monkey.items == deque([Item(79), Item(98)])
-    assert monkey.operation == "old * 19"
+    assert monkey.operator == "*"
+    assert monkey.operand == "19"
     assert monkey.divisor == 23
     assert monkey.dest_if_true == 2
     assert monkey.dest_if_false == 3
@@ -176,8 +179,8 @@ def total_number_of_times_each_monkey_inspects_items(
                 logging.debug(
                     f"  Monkey inspects an item with a worry level of {item}."
                 )
-                item.update_worry_level(monkey.operation)
-                logging.debug(f"    Worry level is {monkey.operation} to {item}.")
+                item.update_worry_level(monkey.operator, monkey.operand)
+                logging.debug(f"    Worry level is {monkey.operator} {monkey.operand} to {item}.")
                 item.worry_level //= 3
                 logging.debug(
                     f"    Monkey gets bored with item. Worry level is divided by 3 to {item}."
