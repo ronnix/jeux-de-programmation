@@ -44,6 +44,42 @@ def test_part1():
     assert part1(EXAMPLE_INPUT) == 10605
 
 
+class Item:
+    def __init__(self, worry_level: int):
+        self.worry_level = worry_level
+
+    def __repr__(self):
+        return f"<Item({self.worry_level})>"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Item):
+            return False
+        return self.worry_level == other.worry_level
+
+    @property
+    def worry_level(self) -> int:
+        return self._worry_level
+
+    @worry_level.setter
+    def worry_level(self, value: int) -> None:
+        self._worry_level = value
+
+    def is_divisible_by(self, divisor: int) -> bool:
+        return (self._worry_level % divisor) == 0
+
+    def update_worry_level(self, operation: str) -> None:
+        mo = re.match(r"old (?P<op>[\*\+]) (?P<operand>old|\d+)", operation)
+        assert mo is not None
+        if mo.group("op") == "*":
+            if mo.group("operand") == "old":
+                operand = self.worry_level
+            else:
+                operand = int(mo.group("operand"))
+            self.worry_level *= operand
+        else:
+            self.worry_level += int(mo.group("operand"))
+
+
 def part1(text: str) -> int:
     monkeys = [
         Monkey.from_string(paragraph) for paragraph in text.split("\n\n") if paragraph
@@ -55,7 +91,7 @@ class Monkey:
     def __init__(
         self,
         number: int,
-        items: List[int],
+        items: List[Item],
         operation: str,
         divisor: int,
         dest_if_true: int,
@@ -74,7 +110,7 @@ class Monkey:
         number = int(mo.group("number"))
 
         mo = re.search(r"Starting items: (?P<items>.+?)\n", s)
-        items = [int(item) for item in mo.group("items").split(", ")]
+        items = [Item(int(item)) for item in mo.group("items").split(", ")]
 
         mo = re.search(r"Operation: new = (?P<operation>.+?)\n", s)
         operation = mo.group("operation")
@@ -113,7 +149,7 @@ def test_parse_monkey():
     )
     monkey = Monkey.from_string(s)
     assert monkey.number == 0
-    assert monkey.items == deque([79, 98])
+    assert monkey.items == deque([Item(79), Item(98)])
     assert monkey.operation == "old * 19"
     assert monkey.divisor == 23
     assert monkey.dest_if_true == 2
@@ -140,13 +176,13 @@ def total_number_of_times_each_monkey_inspects_items(
                 logging.debug(
                     f"  Monkey inspects an item with a worry level of {item}."
                 )
-                item = eval(monkey.operation, {"old": item})
+                item.update_worry_level(monkey.operation)
                 logging.debug(f"    Worry level is {monkey.operation} to {item}.")
-                item //= 3
+                item.worry_level //= 3
                 logging.debug(
                     f"    Monkey gets bored with item. Worry level is divided by 3 to {item}."
                 )
-                divisible = item % monkey.divisor == 0
+                divisible = item.is_divisible_by(monkey.divisor)
                 logging.debug(
                     f"    Current worry level {'is' if divisible else 'is not'} divisible by {monkey.divisor}."
                 )
