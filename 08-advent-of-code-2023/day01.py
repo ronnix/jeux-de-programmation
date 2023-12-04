@@ -43,11 +43,13 @@ DIGITS = [
 
 def calibration_value(line, with_letters=False):
     if with_letters:
-        pattern = f"(\\d|{'|'.join(DIGITS)})"
+        pattern = f"(?=(\\d|{'|'.join(DIGITS)}))"
     else:
         pattern = r"(\d)"
-    matches = re.findall(pattern, line)
-    digits = [int(m) if m.isdigit() else DIGITS.index(m) for m in matches]
+    matches = [match.group(1) for match in re.finditer(pattern, line)]
+    digits = [
+        int(match) if match.isdigit() else DIGITS.index(match) for match in matches
+    ]
     first = digits[0]
     last = digits[-1]
     return (first * 10) + last
