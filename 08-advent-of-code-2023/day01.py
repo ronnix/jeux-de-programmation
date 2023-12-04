@@ -42,17 +42,27 @@ DIGITS = [
 
 
 def calibration_value(line, with_letters=False):
+    patterns = [r"\d"]
     if with_letters:
-        pattern = f"(?=(\\d|{'|'.join(DIGITS)}))"
-    else:
-        pattern = r"(\d)"
-    matches = [match.group(1) for match in re.finditer(pattern, line)]
+        patterns.extend(DIGITS)
     digits = [
-        int(match) if match.isdigit() else DIGITS.index(match) for match in matches
+        int(match) if match.isdigit() else DIGITS.index(match)
+        for match in overlapping_matches(patterns, line)
     ]
     first = digits[0]
     last = digits[-1]
     return (first * 10) + last
+
+
+# The standard library's re.findall() returns non-overlapping matches,
+# which does not give the correct result in a few cases. We could use
+# the third-party `regex` library instead, which adds an option for
+# overlapping matches. Or if we stick to the stdlib, we can use a
+# capturing group inside a lookahead.
+# https://stackoverflow.com/questions/5616822/how-to-use-regex-to-find-all-overlapping-matches
+def overlapping_matches(patterns, text):
+    regex = f"(?=({'|'.join(patterns)}))"
+    return re.findall(regex, text)
 
 
 def test_part1():
