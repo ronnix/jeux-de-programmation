@@ -1,6 +1,7 @@
 # https://adventofcode.com/2023/day/3
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
@@ -37,11 +38,11 @@ def part1(text: str) -> int:
 def part_numbers(text: str) -> List[int]:
     schematic = Schematic.from_string(text)
     numbers = schematic.numbers()
-    return [
-        number.value
-        for number in schematic.numbers()
-        if schematic.has_symbol_around(number)
-    ]
+    number_to_symbols = defaultdict(set)
+    for number in numbers:
+        for symbol in schematic.surrounding_symbols(number):
+            number_to_symbols[number].add(symbol)
+    return [number.value for number in number_to_symbols]
 
 
 def test_parse_schematic():
@@ -107,19 +108,25 @@ class Schematic:
             if x_start is not None:
                 yield Number(int(number), x_start, x_end, y)
 
-    def has_symbol_around(self, number: Number) -> bool:
+    def surrounding_symbols(self, number: Number) -> Iterator[Symbol]:
         for y_ in range(number.y - 1, number.y + 2):
             for x_ in range(number.x_start - 1, number.x_end + 2):
                 if (0 <= x_ < self.width) and (0 <= y_ < self.height):
-                    if not re.match(r"\d|\.", self.at(x_, y_)):
-                        return True
-        return False
+                    char = self.at(x_, y_)
+                    if not re.match(r"\d|\.", char):
+                        yield Symbol(char, x_, y_)
 
 
 class Number(NamedTuple):
     value: int
     x_start: int
     x_end: int
+    y: int
+
+
+class Symbol(NamedTuple):
+    char: str
+    x: int
     y: int
 
 
