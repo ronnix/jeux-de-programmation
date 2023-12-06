@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
-from typing import List
+from typing import Iterator, List, NamedTuple
 import re
 
 import pytest
@@ -36,10 +36,11 @@ def part1(text: str) -> int:
 
 def part_numbers(text: str) -> List[int]:
     schematic = Schematic.from_string(text)
+    numbers = schematic.numbers()
     return [
-        number
-        for number, x_start, x_end, y in schematic.numbers()
-        if schematic.has_symbol_around(x_start, x_end, y)
+        number.value
+        for number in schematic.numbers()
+        if schematic.has_symbol_around(number)
     ]
 
 
@@ -87,7 +88,7 @@ class Schematic:
     def at(self, x: int, y: int) -> str:
         return self.lines[y][x]
 
-    def numbers(self):
+    def numbers(self) -> Iterator[Number]:
         for y in range(self.height):
             x_start = x_end = None
             number = ""
@@ -100,20 +101,26 @@ class Schematic:
                     number += char
                 else:
                     if x_start is not None:
-                        yield (int(number), x_start, x_end, y)
+                        yield Number(int(number), x_start, x_end, y)
                         x_start = x_end = None
                         number = ""
             if x_start is not None:
-                yield (int(number), x_start, x_end, y)
+                yield Number(int(number), x_start, x_end, y)
 
-    def has_symbol_around(self, x_start: int, x_end: int, y: int) -> bool:
-        SYMBOLS = {"*", "#", "+", "$"}
-        for y_ in range(y - 1, y + 2):
-            for x_ in range(x_start - 1, x_end + 2):
+    def has_symbol_around(self, number: Number) -> bool:
+        for y_ in range(number.y - 1, number.y + 2):
+            for x_ in range(number.x_start - 1, number.x_end + 2):
                 if (0 <= x_ < self.width) and (0 <= y_ < self.height):
                     if not re.match(r"\d|\.", self.at(x_, y_)):
                         return True
         return False
+
+
+class Number(NamedTuple):
+    value: int
+    x_start: int
+    x_end: int
+    y: int
 
 
 if __name__ == "__main__":
