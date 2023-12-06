@@ -36,6 +36,15 @@ def part1(text: str) -> int:
     return sum(schematic.part_numbers())
 
 
+def test_part2():
+    assert part2(EXAMPLE_SCHEMATIC) == 467835
+
+
+def part2(text: str) -> int:
+    schematic = Schematic.from_string(text)
+    return sum(schematic.gear_ratios())
+
+
 def test_parse_schematic():
     g = Schematic.from_string(EXAMPLE_SCHEMATIC)
     assert g.height == 10
@@ -114,6 +123,19 @@ class Schematic:
                 number_to_symbols[number].add(symbol)
         return [number.value for number in number_to_symbols]
 
+    def gear_ratios(self) -> List[int]:
+        symbols_to_numbers = defaultdict(set)
+
+        for number in self.numbers():
+            for symbol in self.surrounding_symbols(number):
+                symbols_to_numbers[symbol].add(number)
+
+        return [
+            numbers.pop().value * numbers.pop().value
+            for symbol, numbers in symbols_to_numbers.items()
+            if symbol.char == "*" and len(numbers) == 2
+        ]
+
 
 class Number(NamedTuple):
     value: int
@@ -131,3 +153,4 @@ class Symbol(NamedTuple):
 if __name__ == "__main__":
     puzzle_input = Path("day03.txt").read_text()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
