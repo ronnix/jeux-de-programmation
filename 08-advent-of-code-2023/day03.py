@@ -32,17 +32,8 @@ def test_part1():
 
 
 def part1(text: str) -> int:
-    return sum(part_numbers(text))
-
-
-def part_numbers(text: str) -> List[int]:
     schematic = Schematic.from_string(text)
-    numbers = schematic.numbers()
-    number_to_symbols = defaultdict(set)
-    for number in numbers:
-        for symbol in schematic.surrounding_symbols(number):
-            number_to_symbols[number].add(symbol)
-    return [number.value for number in number_to_symbols]
+    return sum(schematic.part_numbers())
 
 
 def test_parse_schematic():
@@ -115,6 +106,13 @@ class Schematic:
                     char = self.at(x_, y_)
                     if not re.match(r"\d|\.", char):
                         yield Symbol(char, x_, y_)
+
+    def part_numbers(self) -> List[int]:
+        number_to_symbols = defaultdict(set)
+        for number in self.numbers():
+            for symbol in self.surrounding_symbols(number):
+                number_to_symbols[number].add(symbol)
+        return [number.value for number in number_to_symbols]
 
 
 class Number(NamedTuple):
