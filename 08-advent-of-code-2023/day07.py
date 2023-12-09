@@ -119,6 +119,80 @@ def part1(text: str) -> int:
     return total_winnings
 
 
+@pytest.mark.parametrize(
+    "cards, hand_type",
+    [
+        ("55555", HandType.FIVE_OF_A_KIND),
+        ("5555J", HandType.FIVE_OF_A_KIND),
+        ("555JJ", HandType.FIVE_OF_A_KIND),
+        ("5JJJJ", HandType.FIVE_OF_A_KIND),
+        ("JJJJJ", HandType.FIVE_OF_A_KIND),
+        ("T5555", HandType.FOUR_OF_A_KIND),
+        ("T555J", HandType.FOUR_OF_A_KIND),
+        ("T55JJ", HandType.FOUR_OF_A_KIND),
+        ("T55J5", HandType.FOUR_OF_A_KIND),
+        ("T5JJJ", HandType.FOUR_OF_A_KIND),
+        ("22333", HandType.FULL_HOUSE),
+        ("2233J", HandType.FULL_HOUSE),
+        ("23444", HandType.THREE_OF_A_KIND),
+        ("2344J", HandType.THREE_OF_A_KIND),
+        ("234JJ", HandType.THREE_OF_A_KIND),
+        ("KK677", HandType.TWO_PAIR),
+        ("32T3K", HandType.ONE_PAIR),
+    ],
+)
+def test_hand_type_with_jokers(cards, hand_type):
+    assert HandWithJoker(cards, 1).hand_type == hand_type
+
+
+def test_ranks_with_jokers():
+    hands = HandWithJoker.parse_list(EXAMPLE_HANDS)
+    ranks = [
+        (hand.cards, hand.hand_type, rank) for rank, hand in enumerate(sorted(hands), 1)
+    ]
+    assert ranks == [
+        ("32T3K", HandType.ONE_PAIR, 1),
+        ("KK677", HandType.TWO_PAIR, 2),
+        ("T55J5", HandType.FOUR_OF_A_KIND, 3),
+        ("QQQJA", HandType.FOUR_OF_A_KIND, 4),
+        ("KTJJT", HandType.FOUR_OF_A_KIND, 5),
+    ]
+
+
+class HandWithJoker(Hand):
+    CARDS = "J23456789TQKA"  # by order of strength
+
+    @property
+    def hand_type(self) -> HandType:
+        counter = Counter(self.cards)
+        nb_jokers = counter.pop("J", 0)
+        counts = [count for _, count in counter.most_common()]
+        if counts == [5 - nb_jokers] or nb_jokers == 5:
+            return HandType.FIVE_OF_A_KIND
+        elif counts == [4 - nb_jokers, 1]:
+            return HandType.FOUR_OF_A_KIND
+        elif counts == [3 - nb_jokers, 2]:
+            return HandType.FULL_HOUSE
+        elif counts == [3 - nb_jokers, 1, 1]:
+            return HandType.THREE_OF_A_KIND
+        elif counts == [2, 2, 1]:
+            return HandType.TWO_PAIR
+        elif counts == [2 - nb_jokers, 1, 1, 1]:
+            return HandType.ONE_PAIR
+        else:
+            return HandType.HIGH_CARD
+
+
+def test_part2():
+    assert part2(EXAMPLE_HANDS) == 5905
+
+
+def part2(text: str) -> int:
+    hands = HandWithJoker.parse_list(text)
+    total_winnings = sum(hand.bid * rank for rank, hand in enumerate(sorted(hands), 1))
+    return total_winnings
+
+
 def read_puzzle_input():
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -127,3 +201,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     puzzle_input = read_puzzle_input()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
