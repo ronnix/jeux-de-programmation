@@ -101,11 +101,11 @@ class Schematic:
                     x_end = x
                     number += char
                 else:
-                    if x_start is not None:
+                    if x_start is not None and x_end is not None:
                         yield Number(int(number), x_start, x_end, y)
                         x_start = x_end = None
                         number = ""
-            if x_start is not None:
+            if x_start is not None and x_end is not None:
                 yield Number(int(number), x_start, x_end, y)
 
     def surrounding_symbols(self, number: Number) -> Iterator[Symbol]:
