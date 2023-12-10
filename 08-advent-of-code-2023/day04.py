@@ -51,7 +51,7 @@ def part2(text: str) -> int:
         card.number: card
         for card in (Card.from_string(line) for line in text.splitlines() if line)
     }
-    counts = Counter()
+    counts: Counter = Counter()
     for card in cards.values():
         counts[card.number] += 1
         for i in range(1, card.number_of_matching_numbers() + 1):
