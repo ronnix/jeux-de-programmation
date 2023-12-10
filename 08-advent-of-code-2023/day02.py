@@ -76,9 +76,10 @@ class Game(NamedTuple):
     @classmethod
     def from_string(cls, text: str) -> Game:
         game, reveals = text.split(": ")
-        m = re.match(r"Game (\d+)", game)
+        mo = re.match(r"Game (\d+)", game)
+        assert mo is not None
         return Game(
-            id=int(m.group(1)),
+            id=int(mo.group(1)),
             reveals={CubeSet.from_string(s) for s in reveals.split("; ")},
         )
 
