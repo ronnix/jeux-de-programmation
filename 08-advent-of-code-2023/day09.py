@@ -62,6 +62,12 @@ class Sequence:
         else:
             return self.values[-1] + self.differences().predict_next()
 
+    def predict_previous(self) -> int:
+        if all(v == 0 for v in self.values):
+            return 0
+        else:
+            return self.values[0] - self.differences().predict_previous()
+
 
 def test_part1():
     assert part1(EXAMPLE_REPORT) == 114
@@ -69,6 +75,18 @@ def test_part1():
 
 def part1(text: str) -> int:
     return sum(sequence.predict_next() for sequence in Sequence.from_list(text))
+
+
+def test_predict_previous():
+    assert Sequence([10, 13, 16, 21, 30, 45]).predict_previous() == 5
+
+
+def test_part2():
+    assert part2(EXAMPLE_REPORT) == 2
+
+
+def part2(text: str) -> int:
+    return sum(sequence.predict_previous() for sequence in Sequence.from_list(text))
 
 
 def read_puzzle_input():
@@ -79,3 +97,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     puzzle_input = read_puzzle_input()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
