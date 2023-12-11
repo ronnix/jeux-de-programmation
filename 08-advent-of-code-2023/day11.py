@@ -89,16 +89,18 @@ class Map:
                     galaxies.add(Coords(x, y))
         return cls(width=len(lines[0]), height=len(lines), galaxies=galaxies)
 
-    def expand(self) -> Map:
-        y_offset, galaxies = self.expand_y(self.galaxies)
-        x_offset, galaxies = self.expand_x(galaxies)
+    def expand(self, expansion_factor: int = 2) -> Map:
+        y_offset, galaxies = self.expand_y(self.galaxies, expansion_factor)
+        x_offset, galaxies = self.expand_x(galaxies, expansion_factor)
         return Map(
             width=self.width + x_offset,
             height=self.height + y_offset,
             galaxies=galaxies,
         )
 
-    def expand_y(self, galaxies: Set[Coords]) -> Tuple[int, Set[Coords]]:
+    def expand_y(
+        self, galaxies: Set[Coords], expansion_factor: int
+    ) -> Tuple[int, Set[Coords]]:
         y_offset = 0
         new_galaxies = set()
 
@@ -113,10 +115,12 @@ class Map:
                     new_galaxies.add(Coords(galaxy.x, galaxy.y + y_offset))
             else:
                 print(f"No galaxies in line {y}")
-                y_offset += 1
+                y_offset += expansion_factor - 1
         return y_offset, new_galaxies
 
-    def expand_x(self, galaxies: Set[Coords]) -> Tuple[int, Set[Coords]]:
+    def expand_x(
+        self, galaxies: Set[Coords], expansion_factor: int
+    ) -> Tuple[int, Set[Coords]]:
         x_offset = 0
         new_galaxies = set()
 
@@ -131,7 +135,7 @@ class Map:
                     new_galaxies.add(Coords(galaxy.x + x_offset, galaxy.y))
             else:
                 print(f"No galaxies in column {x}")
-                x_offset += 1
+                x_offset += expansion_factor - 1
         return x_offset, new_galaxies
 
 
@@ -140,8 +144,26 @@ def test_part1():
 
 
 def part1(text: str) -> int:
-    m = Map.from_string(text).expand()
-    return sum(shortest_path(g1, g2) for g1, g2 in combinations(m.galaxies, 2))
+    m = Map.from_string(text)
+    return sum_of_shortest_paths(m, expansion_factor=2)
+
+
+def sum_of_shortest_paths(m: Map, expansion_factor: int = 2) -> int:
+    return sum(
+        shortest_path(g1, g2)
+        for g1, g2 in combinations(m.expand(expansion_factor).galaxies, 2)
+    )
+
+
+def test_part2():
+    m = Map.from_string(EXAMPLE_IMAGE)
+    assert sum_of_shortest_paths(m, expansion_factor=10) == 1030
+    assert sum_of_shortest_paths(m, expansion_factor=100) == 8410
+
+
+def part2(text: str) -> int:
+    m = Map.from_string(text)
+    return sum_of_shortest_paths(m, expansion_factor=1_000_000)
 
 
 def read_puzzle_input():
@@ -152,3 +174,4 @@ def read_puzzle_input():
 if __name__ == "__main__":
     puzzle_input = read_puzzle_input()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
