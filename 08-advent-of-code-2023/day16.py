@@ -164,8 +164,12 @@ def test_part1():
 
 def part1(text: str) -> int:
     grid = Grid.from_string(text)
+    return number_of_activated_tiles(grid=grid, initial=Beam())
+
+
+def number_of_activated_tiles(grid: Grid, initial: Beam) -> int:
     beams: set[Beam] = set()
-    new_beams = {Beam()}
+    new_beams = {initial}
     while new_beams:
         input_ = new_beams.pop()
         beams.add(input_)
@@ -176,6 +180,32 @@ def part1(text: str) -> int:
     return len(activated)
 
 
+def test_part2():
+    assert part2(EXAMPLE) == 51
+
+
+def part2(text: str) -> int:
+    grid = Grid.from_string(text)
+    top_beams = [
+        Beam(position=Coords(x, 1), direction=Direction.DOWN)
+        for x in range(1, grid.width + 1)
+    ]
+    bottom_beams = [
+        Beam(position=Coords(x, grid.height), direction=Direction.UP)
+        for x in range(1, grid.width + 1)
+    ]
+    left_beams = [
+        Beam(position=Coords(1, y), direction=Direction.RIGHT)
+        for y in range(1, grid.height + 1)
+    ]
+    right_beams = [
+        Beam(position=Coords(grid.width, y), direction=Direction.LEFT)
+        for y in range(1, grid.height + 1)
+    ]
+    beams = top_beams + bottom_beams + left_beams + right_beams
+    return max(number_of_activated_tiles(grid=grid, initial=beam) for beam in beams)
+
+
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -184,3 +214,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     puzzle_input = read_puzzle_input()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
