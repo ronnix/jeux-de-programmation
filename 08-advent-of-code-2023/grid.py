@@ -1,13 +1,27 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from functools import cached_property
-from typing import NamedTuple, Self
+from typing import Any, NamedTuple, Self
+
+
+class Direction(Enum):
+    LEFT = (-1, 0)
+    RIGHT = (+1, 0)
+    UP = (0, -1)
+    DOWN = (0, +1)
 
 
 class Coords(NamedTuple):
     x: int
     y: int
+
+    def __add__(self, other: Any) -> Coords:
+        if isinstance(other, Direction):
+            dx, dy = other.value
+            return Coords(x=self.x + dx, y=self.y + dy)
+        return NotImplemented
 
 
 @dataclass(frozen=True)
