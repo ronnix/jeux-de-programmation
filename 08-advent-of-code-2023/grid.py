@@ -6,22 +6,45 @@ from functools import cached_property
 from typing import Any, NamedTuple, Self
 
 
-class Direction(Enum):
-    LEFT = (-1, 0)
-    RIGHT = (+1, 0)
-    UP = (0, -1)
-    DOWN = (0, +1)
-
-
 class Coords(NamedTuple):
     x: int
     y: int
 
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y})"
+
+    def __repr__(self) -> str:
+        return str(self)
+
     def __add__(self, other: Any) -> Coords:
+        if isinstance(other, Coords):
+            return Coords(x=self.x + other.x, y=self.y + other.y)
         if isinstance(other, Direction):
-            dx, dy = other.value
-            return Coords(x=self.x + dx, y=self.y + dy)
+            return self + other.value
         return NotImplemented
+
+    def __mul__(self, other: Any) -> Coords:
+        if isinstance(other, int):
+            return Coords(x=self.x * other, y=self.y * other)
+        return NotImplemented
+
+
+class Direction(Enum):
+    LEFT = Coords(-1, 0)
+    RIGHT = Coords(+1, 0)
+    UP = Coords(0, -1)
+    DOWN = Coords(0, +1)
+
+
+class Orientation(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 @dataclass(frozen=True)
