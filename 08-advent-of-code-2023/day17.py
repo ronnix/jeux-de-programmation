@@ -57,7 +57,7 @@ class Graph(nx.DiGraph):
         return self._grid.height
 
     @classmethod
-    def from_string(cls, text: str) -> Self:
+    def from_string(cls, text: str, min_dist: int = 1, max_dist: int = 3) -> Self:
         graph = cls(grid=Grid.from_string(text))
         for y in range(graph._grid.height):
             for x in range(graph._grid.width):
@@ -71,7 +71,7 @@ class Graph(nx.DiGraph):
                             directions = [Direction.UP, Direction.DOWN]
                             next_orientation = Orientation.HORIZONTAL
                     for direction in directions:
-                        for length in [1, 2, 3]:
+                        for length in range(min_dist, max_dist + 1):
                             next_node = Node(
                                 position=node.position + direction.value * length,
                                 orientation=next_orientation,
@@ -121,6 +121,28 @@ def part1(text: str) -> int:
     return graph.minimum_heat_loss()
 
 
+def test_part2():
+    assert part2(EXAMPLE) == 94
+
+
+OTHER_EXAMPLE = """\
+111111111111
+999999999991
+999999999991
+999999999991
+999999999991
+"""
+
+
+def test_part2_other_example():
+    assert part2(OTHER_EXAMPLE) == 71
+
+
+def part2(text: str) -> int:
+    graph = Graph.from_string(text, min_dist=4, max_dist=10)
+    return graph.minimum_heat_loss()
+
+
 def read_puzzle_input() -> str:
     with open(__file__.removesuffix("py") + "txt") as f:
         return f.read()
@@ -129,3 +151,4 @@ def read_puzzle_input() -> str:
 if __name__ == "__main__":
     puzzle_input = read_puzzle_input()
     print("Part 1", part1(puzzle_input))
+    print("Part 2", part2(puzzle_input))
